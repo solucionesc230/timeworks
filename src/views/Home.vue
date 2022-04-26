@@ -167,8 +167,8 @@ export default class Index extends Vue {
   @Prop() private msg!: string;
 
   // GOOGLE CALENDAR CREDENTIALS AND INFO
-  CLIENT_ID = '438182473804-lold6v82v1m26dht1dr3j58e0tmbjg3g.apps.googleusercontent.com';
-  API_KEY = 'AIzaSyC2eQA62ImF7GlMuscwl26zg2X0_dBkIcY';
+  CLIENT_ID = '991461654848-8a9ir5d2aps6ds54llr51efrf2cq8qrh.apps.googleusercontent.com';
+  API_KEY = 'AIzaSyDB3A0IlmAGxdPUDCk8DhtfYbJq5qYwLxI';
   DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
   SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
   checkForSending =  false;
