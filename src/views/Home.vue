@@ -3,8 +3,8 @@
     <!-- <div class="col-12"> -->
       <div class="card">
         <h1 class="title-home">Envío de informe</h1>
-        <div class="card-body card-shadow mt-2">
 
+        <div class="card-body card-shadow mt-2">
           <div class="row pl-4 pr-4">
             <div class="col-md-4 p-0 m-0">
               <div :class="getClase(1)">
@@ -41,12 +41,15 @@
                   <p class="paragraphs">
                     Para generar un informe completo, selecciona las fechas de inicio y fin del mes requerido (sin distinguir fin de semana o feriados). Para generar un reporte parcial, selecciona el rango de fechas deseado. Finalmente, agrega el calendario o calendarios deseados y click en el botón “Continuar”
                   </p>
-                  <a-range-picker  @change="dateRangeChanged" />
+                  <div class="d-flex align-items-center">
+                    <a-range-picker  @change="dateRangeChanged" />
+                    <button v-if="!isLoading"  type="button" class="ml-2 btn btn-outline-success btn-custom-green btn-sm actions-button" @click="importCalendar">Añadir Calendario</button>
+                  </div>
                   <br><br>
                 </div>
                 <div class="row pl-4 mt-2">
                   <rotate-square2 v-if="isLoading"></rotate-square2>
-                  <button v-if="!isLoading"  type="button" class="btn btn-outline-success btn-sm actions-button" @click="importCalendar">Añadir Calendario</button>
+
                 </div>
                 <div class="row mt-2 pt-4 pl-4" style="border: 1px solid #969696;border-radius: 5px;"
                 v-for="(item, index) in dataGrouped" :key="index"
@@ -228,16 +231,12 @@ export default class Index extends Vue {
 
   async created() {
       this.api = gapi;
-      console.log('cargando...');
-
      await this.handleClientLoad();
 
   }
 
   handleClientLoad() {
     this.api.load("client:auth2", this.initClient);
-    console.log('fin');
-
   }
 
   continueToNext(val: boolean){
@@ -781,6 +780,15 @@ export default class Index extends Vue {
 
   .font-button {
     font-size: 0.6em;
+  }
+
+  .btn-custom-green{
+    border-color: #8FC02B !important;
+    color: #8FC02B !important;
+  }
+
+  .btn-custom-green:hover{
+    background-color: white;
   }
 
 

@@ -4,7 +4,7 @@
       <!-- <div class="col-lg-12 col-md-12"> -->
         <div class="card p-lr" >
           <h1 class="title-home">
-            <a class="title-admin" href="#" @click="type = '';">Administración</a>
+            <a class="title-admin" @click="type = '';">Administración</a>
           <b>  {{type === '' ? ''
             : type === types.reportsgeneration ? '> Reportes recibidos'
             : type === types.users ? '> Revisión detallada' : '' }}</b>
@@ -99,7 +99,12 @@ export default class Administration extends Vue{
     reports: "reports",
     reportsgeneration: "reportsgeneration"
    };
+   created(){
+     // this['$router'].replace("/administration");
+     // this.type = '';
+     console.log('djje');
 
+   }
   private type = '';
 
   goToReportsGeneration(){

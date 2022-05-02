@@ -94,6 +94,12 @@
                 </div>
               </div>
             </div>
+            <hr>
+            <div class="row justify-content-center">
+              <button v-if="data.length" type="button" class="ml-2 btn btn-outline-success btn-custom-green btn-sm actions-button" @click="exportDataRange">
+                Descargar Excel <img class="ml-1" style="width: 18px" src="/assets/images/excel.png">
+              </button>
+            </div>
             <modal name="data" :scrollable="true" :height="400" :adaptive="true" :width="800">
               <div class="row p-4">
                 <div class="col-md-12">
@@ -169,11 +175,39 @@ export default class QueryUser extends Vue {
   code = "";
   dataTemporary = [];
   totalHours = 0;
+  data = [];
+
 
   created(){
     this.getUniquesProjects();
   }
 
+  exportDataRange(){
+    console.log('exportar datos')
+    const headers = ['code', 'detail', 'date_time', 'hours'];
+    const array = this.data.map( (i: any) =>  {
+      return {
+        'code'   : i.project,
+        'detail' : i.detail,
+        'date_time' : i.date_time,
+        'hours'   : i.hours
+      }
+    });
+
+    const data = XLSX.utils.json_to_sheet(array, {
+      header: headers
+    })
+    data['A1'].v = 'Código'
+    data['B1'].v = 'Detalle'
+    data['C1'].v = 'Fecha Ejecución'
+    data['D1'].v = 'Tiempo(Hrs)'
+    const userName = this['$store'].state.user.name.replace(/ /g, "_");
+
+    const workbook = XLSX.utils.book_new()
+    const filename = `Registros_de_${userName}_del_${this.startDate}_al_${this.endDate}`;
+    XLSX.utils.book_append_sheet(workbook, data, "registros")
+    XLSX.writeFile(workbook, `${filename}.xlsx`);
+  }
 
   async getUniquesProjects(){
     const response = await axios.post('/api/project-list');
@@ -206,7 +240,8 @@ export default class QueryUser extends Vue {
 
     try {
       const response = await axios.post('/api/get/data/date-range', data);
-
+      this.data = response.data.data;
+      console.log(this.data);
       const nowData = response.data.nowData.map(function (item: any) {
         return {
           name: item.name,
@@ -519,4 +554,14 @@ export default class QueryUser extends Vue {
 table  { border-collapse: collapse; width: 100%; }
 th, td { padding: 8px 16px; }
 th     { background:#eee; }
+
+.btn-custom-green{
+  border-color: #24A148;
+  color: #24A148;
+}
+
+.btn-custom-green:hover{
+  color: white;
+  background-color:  #24A148;
+}
 </style>

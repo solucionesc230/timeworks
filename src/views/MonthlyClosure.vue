@@ -67,6 +67,9 @@
       <div class="row p-4">
         <div class="col-md-12">
          <b> Registros #{{ code }}</b>
+          <button class="btn btn-sm btn-success ml-3 mb-2" v-show="dataTemporary.length" @click="dataExport">
+            Exportar
+          </button>
         </div>
         <div class="col-md-12" >
           <div class="tableFixHead">
@@ -100,6 +103,7 @@ import {RotateSquare2} from 'vue-loading-spinner';
 import axios from "axios";
 import {Chart} from 'highcharts-vue'
 import {collect} from "collect.js";
+import XLSX from "xlsx";
 @Component({
   components:{
     RotateSquare2,
@@ -381,6 +385,30 @@ export default class UsePolicy extends Vue {
     };
 
     this.options.push(option);
+  }
+
+  dataExport(){
+    const headers = ['detail', 'date_time', 'hours'];
+    const array = this.dataTemporary.map( (i: any) =>  {
+      return {
+        'detail' : i.detail,
+        'date_time' : i.date_time,
+        'hours'   : i.hours
+      }
+    });
+
+    const data = XLSX.utils.json_to_sheet(array, {
+      header: headers
+    })
+    data['A1'].v = 'Detalle'
+    data['B1'].v = 'Fecha Ejecución'
+    data['C1'].v = 'Tiempo(Hrs)'
+    const userName = this['$store'].state.user.name.replace(/ /g, "_");
+
+    const workbook = XLSX.utils.book_new()
+    const filename = `Registros(${this.code})_de_${this.monthName}`;
+    XLSX.utils.book_append_sheet(workbook, data, "tiempo")
+    XLSX.writeFile(workbook, `${filename}.xlsx`);
   }
 }
 </script>
