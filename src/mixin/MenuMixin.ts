@@ -50,7 +50,6 @@ class MenuMixinMixin extends Vue {
 
     goToGeneralRegisters(){
         if (!this.checkPermissionPolicy()) return true;
-        this['$router'].replace("/loading");
         this['$router'].replace("/administration");
     }
 
