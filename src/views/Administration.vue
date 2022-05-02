@@ -5,11 +5,17 @@
         <div class="card p-lr" >
           <h1 class="title-home">
             <a class="title-admin" @click="type = '';">Administración</a>
+            <template v-if="$route.fullPath === '/administration?detail'">
+
           <b>  {{type === '' ? ''
             : type === types.reportsgeneration ? '> Reportes recibidos'
-            : type === types.users ? '> Revisión detallada' : '' }}</b>
+            : type === types.users ? '> Revisión detallada'
+            : type === types.vacation ? '> Vacaciones y ausencias'
+            : type === types.timesheet ? '> TimeSheets'
+            : '' }}</b>
+          </template>
           </h1>
-          <div class="grid-cards-admin" v-show="type === ''">
+          <div class="grid-cards-admin" v-show="type === '' || $route.fullPath != '/administration?detail'">
             <div class="card card-shadow" @click="setType(types.reportsgeneration)" style="cursor: pointer;">
               <div class="card-body" >
                 <hr class="hr">
@@ -30,7 +36,7 @@
                 </div>
               </div>
             </div>
-            <div class="card card-shadow" style="cursor: pointer;">
+            <div class="card card-shadow" @click="setType(types.vacation)" style="cursor: pointer;">
               <div class="card-body" >
                 <hr class="hr">
                 <div class="card-contain">
@@ -40,7 +46,7 @@
                 </div>
               </div>
             </div>
-            <div class="card card-shadow" style="cursor: pointer;">
+            <div class="card card-shadow" @click="setType(types.timesheet)" style="cursor: pointer;">
               <div class="card-body" >
                 <hr class="hr">
                 <div class="card-contain">
@@ -65,16 +71,20 @@
               <a class="btn btn-block btn-custom-warning" @click="setType(types.reports)">Reportes</a>
             </div>
           </div> -->
-          <div class="card-body card-shadow mt-4" v-show="type != '' && type != types.reportsgeneration ">
+          <div class="card-body card-shadow mt-4" v-show="type != '' && type != types.reportsgeneration && $route.fullPath === '/administration?detail'">
             <general-registers v-if="type === types.general"></general-registers>
             <project-registers v-if="type === types.projects"></project-registers>
             <users-registers v-if="type === types.users"></users-registers>
             <reports-register v-if="type === types.reports"></reports-register>
+            <vacation v-if="type === types.vacation"></vacation>
+            <vacation v-if="type === types.timesheet"></vacation>
           </div>
         </div>
         <div class="bg-admin" v-if="type === ''">
         </div>
-        <reports-generation v-if="type === types.reportsgeneration"></reports-generation>
+        <div v-show="$route.fullPath === '/administration?detail'">
+          <reports-generation v-if="type === types.reportsgeneration"></reports-generation>
+        </div>
       <!-- </div> -->
     <!-- </div> -->
   </div>
@@ -87,9 +97,10 @@ import UsersRegisters from "@/views/UserRegisters.vue";
 import ProjectRegisters from "@/views/ProjectRegisters.vue";
 import ReportsRegister from "@/views/ReportsRegister.vue";
 import ReportsGeneration from "@/views/ReportsGeneration.vue";
+import Vacation from "@/views/Vacation.vue";
 
 @Component({
-  components: {ReportsRegister, ProjectRegisters, GeneralRegisters, UsersRegisters, ReportsGeneration }
+  components: {ReportsRegister, ProjectRegisters, GeneralRegisters, UsersRegisters, ReportsGeneration, Vacation }
 })
 export default class Administration extends Vue{
   private types = {
@@ -97,14 +108,10 @@ export default class Administration extends Vue{
     users : "users",
     projects : "projects",
     reports: "reports",
-    reportsgeneration: "reportsgeneration"
+    reportsgeneration: "reportsgeneration",
+    vacation: "vacation",
+    timesheet: "timesheet"
    };
-   created(){
-     // this['$router'].replace("/administration");
-     // this.type = '';
-     console.log('djje');
-
-   }
   private type = '';
 
   goToReportsGeneration(){
@@ -112,6 +119,8 @@ export default class Administration extends Vue{
   }
 
   private setType(type: string){
+
+    this['$router'].replace("/administration?detail");
     this.type =  type;
   }
 }

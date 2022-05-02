@@ -2,6 +2,7 @@
 
   <div class="container-fluid" style="background: #FFFFFF;">
     <br>
+    <h4 class="custom-h1">En construción</h4>
     <div class="img-w">
 
     </div>
@@ -33,8 +34,8 @@ import { Component, Vue } from 'vue-property-decorator';
     padding-bottom: 10%;
   }
 
-  .custom-h5{
-    font-size: 2em !important;
+  .custom-h1{
+    font-size: 2.5em !important;
     font-family: IBM Plex Sans Condensed;
     color: #50504f;
     font-weight: 600;
