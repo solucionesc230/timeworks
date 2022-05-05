@@ -5,6 +5,7 @@
     <div class="card">
       <!-- <h1 class="title-home">Generación de reportes</h1> -->
       <div class="card-body card-shadow">
+
         <div class="flex-head">
           <label style="color: #6C757D;font-weight: 700;font-size: 1.2em;padding-right : 0;">Mes :</label>
           <div style="padding : 0;">
@@ -95,9 +96,9 @@
 </div>
 <!-- </div> -->
 <!-- </div> -->
-<a-modal v-model="showModal" title="Subir archivo" >
+<a-modal width="40em" v-model="showModal" :title="'Subir archivo para : ' + (item == null ? '' : item.name)" >
   <template slot="footer">
-    <button class="btn btn-warning" v-if="!loading"  @click="showModal = false">
+    <button class="btn btn-warning" v-if="!loading"  @click="showModal = false; files = [];">
       Cancelar
     </button>
     <button class="btn btn-success" v-if="!loading"  :loading="loading" @click="uploadFile">
@@ -105,9 +106,23 @@
     </button>
     <rotate-square2 size="20px" v-if="loading"></rotate-square2>
   </template>
-  <label>
-    <input ref="file" accept="application/pdf"  type="file" @change="handleFileUpload( $event )"/>
-  </label>
+
+  <div class="card-drop">
+    <div class="dropzone">
+      <DropZone :enabled="!uploading"
+    @filesAdded="onFilesAdded" @filesNew="onfilesNew"/>
+    </div>
+    <div class="left-side">
+      <div class="file-list">
+        <h5 style="margin-top:0">Archivos (solo se aceptan PDF)</h5>
+        <h6>{{files.name}}</h6>
+
+      </div>
+    </div>
+  </div>
+  <!-- <label>
+  <input ref="file" accept="application/pdf"  type="file" @change="handleFileUpload( $event )"/>
+</label> -->
 </a-modal>
 </div>
 </template>
@@ -120,12 +135,13 @@ import axios from "axios";
 import {RotateSquare2} from "vue-loading-spinner";
 import {Report} from "@/helpers/interfaces/ReportInterface";
 import { Modal } from 'ant-design-vue';
+import DropZone from '../components/DropZone.vue';
 
 import XLSX from "xlsx";
 
 @Component({
   components :{
-    MonthPickerInput, RotateSquare2
+    MonthPickerInput, RotateSquare2, DropZone
   }
 })
 export default class ReportsGeneration extends Vue{
@@ -136,9 +152,21 @@ export default class ReportsGeneration extends Vue{
   item: any = null;
   file: any = null;
   loading = false;
+  uploading = false;
+  files: any = [];
+
 
   created(){
     //this.getUsersReports();
+  }
+
+  onFilesAdded(files: File[]) {
+    this.files = [...files, ...this.files];
+    this.files = this.files[this.files.length - 1];
+  }
+
+  onfilesNew(){
+    this.files = [];
   }
 
   showDate (date: any) {
@@ -156,27 +184,28 @@ export default class ReportsGeneration extends Vue{
     this.file = event.target.files[0];
   }
   async uploadFile(){
+
     this.loading = true;
-    if (this.file == null){
+    if (this.files.length == 0){
       this.showModal = false;
+      this.loading = false;
       return;
     }
     const formData = new FormData();
-    formData.append('file', this.file);
+    formData.append('file', this.files);
     formData.append('activity_id', this.item.activityId);
     const response = await axios.post( '/api/upload-report-user', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    console.log(response);
     await this.markAsFinished(this.item);
     this.loading = false;
+    this.files = [];
     this.showModal = false;
     await this.getUsersReports();
   }
 
   async getUsersReports(){
     const response = await axios.post('/api/reports-generation-monthly', { 'month' : this.month, 'year' : this.year });
-    console.log(response);
     this.data = response.data;
   }
 
@@ -204,7 +233,6 @@ export default class ReportsGeneration extends Vue{
 
     try{
       const response = await axios.post('/api/reports-generation-list', params);
-      //console.log(response);
       this.data[index].loading =  false;
       const userName = this.data[index].name.replace(/ /g, "_");
       this.createExcel(response.data.data, userName);
@@ -272,7 +300,6 @@ export default class ReportsGeneration extends Vue{
   }
 
   async deleteFile(data: any){
-    console.log(data,'s');
     const params = {
       "activityId" : data.activityId,
       "userId" : data.id,
@@ -281,7 +308,7 @@ export default class ReportsGeneration extends Vue{
     const response = await axios.post('/api/delete-report-file', params);
     await this.getUsersReports();
 
-    }
+  }
 
   getImageDownload(item: any, type: any){
     return (item.version == 0)
@@ -351,4 +378,37 @@ table td {
   align-items: center;
 }
 
+.card-drop {
+  background: #fff;
+  border-radius: 2px;
+  display: flex;
+  /* height: 50%; */
+  /* width: 50%; */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  padding: 8px;
+  box-sizing: border-box;
+  align-self: center;
+}
+
+</style>
+<style>
+
+.dropzone {
+  width: 65%;
+  float: left;
+}
+.file-list {
+  float: left;
+  padding-left: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+.left-side {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
 </style>

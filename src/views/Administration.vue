@@ -79,6 +79,8 @@
             <vacation v-if="type === types.vacation"></vacation>
             <vacation v-if="type === types.timesheet"></vacation>
           </div>
+
+
         </div>
         <div class="bg-admin" v-if="type === ''">
         </div>
