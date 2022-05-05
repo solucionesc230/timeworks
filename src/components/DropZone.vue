@@ -20,7 +20,9 @@ export default class DropZone extends Vue {
   private hightlight = false;
   openFileSelection() {
     if (!this.enabled) return;
-    (this.$refs.fileInput).click();
+    const element: HTMLElement = this.$refs.fileInput as HTMLElement;
+    element.click();
+    // (this.$refs.fileInput)?.click();
   }
   onDragOver(event: DragEvent) {
     if (!this.enabled) return;
