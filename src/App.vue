@@ -139,6 +139,10 @@ export default class App extends Vue {
   border-radius: 8px;
 }
 
+.new{
+color: #000000;
+}
+
 .paragraphs{
   font-family: IBM Plex Sans Condensed;
   font-size: 1.2em;
