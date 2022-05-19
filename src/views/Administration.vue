@@ -99,7 +99,7 @@ import UsersRegisters from "@/views/UserRegisters.vue";
 import ProjectRegisters from "@/views/ProjectRegisters.vue";
 import ReportsRegister from "@/views/ReportsRegister.vue";
 import ReportsGeneration from "@/views/ReportsGeneration.vue";
-import Vacation from "@/views/Vacation.vue";
+import Vacation from "@/views/AdminVacation.vue";
 
 @Component({
   components: {ReportsRegister, ProjectRegisters, GeneralRegisters, UsersRegisters, ReportsGeneration, Vacation }
