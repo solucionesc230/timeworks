@@ -1,4 +1,4 @@
-typerequest<template>
+<template>
 
   <div class="container-home-dos" style="background: #FFFFFF;">
     <br>
@@ -14,8 +14,8 @@ typerequest<template>
               <p class="p-admin">MIS VACACIONES </p>
               <h2 style="text-align:left;color: #a5acb2;">{{util.days_generated}} días disponibles</h2>
               <p class="p-admin" style="color: #6C757D !important;">Válidos hasta el [31/03/{{year + 1}}]</p>
-              <a @click="type = 1" class="btn btn-outline-btn-vacation"><i></i> Solicitar vacaciones o ausencia <i class="fas fa-angle-right"></i></a>
-              <a @click="type = 2; getHistory();" class="btn btn-outline-btn-vacation"><i></i> Mi historial <i class="fas fa-angle-right"></i></a>
+              <a @click="type = 1" class="btn btn-outline-btn-vacation" :class="type == 1 ? 'active' : ''"><i></i> Solicitar vacaciones o ausencia <i class="fas fa-angle-right"></i></a>
+              <a @click="type = 2" class="btn btn-outline-btn-vacation" :class="type == 2 ? 'active' : ''"><i></i> Mi historial <i class="fas fa-angle-right"></i></a>
             </div>
           </div>
         </div>
@@ -82,40 +82,7 @@ typerequest<template>
 
             </div>
           </div>
-          <div class="card card-shadow height-card" v-show="type == 2">
-            <div class="card-body" >
-
-              <div class="grid-inputs-one">
-                <p class="text-al fw" style="color: #310981;">Mi historial</p>
-                <div class="grid-buttons">
-                  <button type="button" class="btn btn-outline-info btn-left btn-w btn-pd fw">2022</button>
-                  <button type="button" class="btn btn-outline-info btn-center btn-w btn-pd fw">2023</button>
-                  <button type="button" class="btn btn-outline-info btn-right btn-w btn-pd fw">2024</button>
-                </div>
-              </div>
-              <div class="table-responsive">
-
-                <table class="table">
-                  <thead>
-                    <tr class="table-info">
-                      <th scope="col" style="color: #3d70b3;">Tipo de ausencia </th>
-                      <th scope="col" style="color: #3d70b3;">Fecha </th>
-                      <th scope="col" style="color: #3d70b3;">Estatus</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="text-al border-n" v-for="t in history"  :key="t.id">
-                      <td class="fw">{{t.type == 1 ? 'Vacaciones' : t.type == 2 ? 'Vacaciones (medio turno)' : t.type == 3 ? 'Enfermedad' : t.type == 4 ? 'Otro' : ''}}</td>
-                      <td class="fw">{{t.fecha}}</td>
-                      <td>{{t.status == 1 ? 'En revisión' : t.status == 2 ? 'Aprobada' : t.status == 3 ? 'Rechazada' : t.status == 4 ? 'Finalizado' : ''}}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-
-            </div>
-          </div>
+          <vacation-history :userId="user.id" :year="year" :origin="'user'" v-if="type == 2"></vacation-history>
         </div>
       </div>
     </div>
@@ -128,14 +95,18 @@ typerequest<template>
 import { Component, Vue } from 'vue-property-decorator';
 import {Modal} from "ant-design-vue";
 import axios from "axios";
+import VacationHistory from "@/views/vacation/VacationHistory.vue";
+import moment from "moment";
 
-@Component
+@Component({
+  components: {VacationHistory }
+})
 
 export default class Welcome extends Vue {
   user: any = "";
   type = 0;
   util: any = "";
-  year = 2022;
+  year = moment().year();
 
   comment: any = "";
   typerequest = 0;
@@ -143,17 +114,10 @@ export default class Welcome extends Vue {
   dateend = "";
   daysuse: any = [];
   daysholidays = 0;
-  // check = "";
-  history: any = [];
 
   async mounted() {
     this.user = this.$store.state.user;
-    // const response = await axios.post('/api/user-list');
-    // this.users = response.data;
     this.daysUtil();
-
-    console.log(this.util);
-
   }
 
   async daysUtil(){
@@ -174,18 +138,18 @@ export default class Welcome extends Vue {
       let weeks = 0;
       for(let i = 0; i < delta; i++){
         if (date1.getDay () == 0 || date1.getDay () == 6){
-        weeks ++; // agrega 1 si es sábado o domingo
-      }else{
-        let month = '' + (date1.getMonth() + 1);
-        let day = '' + date1.getDate();
-        const year = date1.getFullYear();
+          weeks ++; // agrega 1 si es sábado o domingo
+        }else{
+          let month = '' + (date1.getMonth() + 1);
+          let day = '' + date1.getDate();
+          const year = date1.getFullYear();
 
-        if (month.length < 2)
-        month = '0' + month;
-        if (day.length < 2)
-        day = '0' + day;
-        this.daysuse.push([year, month, day].join('-'));
-      }
+          if (month.length < 2)
+          month = '0' + month;
+          if (day.length < 2)
+          day = '0' + day;
+          this.daysuse.push([year, month, day].join('-'));
+        }
         date1 = date1.valueOf();
         date1 += 1000 * 60 * 60 * 24;
         date1 = new Date(date1);
@@ -206,11 +170,6 @@ export default class Welcome extends Vue {
     this.daysholidays = 0;
   }
 
-  async getHistory() {
-    const history = await axios.get('/api/user-history-vacation/' + this.$store.state.user.id + '&' + this.year);
-    this.history = history.data;
-  }
-
   async requestHoliday() {
     const result: any = await axios.post('/api/send-request-holiday',
     { userid : this.user.id,
@@ -223,11 +182,11 @@ export default class Welcome extends Vue {
       daysuse: this.daysuse,
       daysholidays: this.daysholidays,
       year : this.year
-     });
-     if (result.data.status == true) {
-       this.daysUtil();
-       this.vaciar();
-     }
+    });
+    if (result.data.status == true) {
+      this.daysUtil();
+      this.vaciar();
+    }
     const success = Modal.success;
     success({
       title: "Tu información se ha guardado correctamente" ,
@@ -235,7 +194,6 @@ export default class Welcome extends Vue {
       okText: 'Aceptar',
     });
   }
-  // console.log(countWorkDay('2017-08-01','2017-08-06'));  // 4
 }
 </script>
 <style media="screen">
@@ -355,6 +313,11 @@ export default class Welcome extends Vue {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.btn-outline-btn-vacation.active{
+  background-color: #310981 !important;
+  color: #FFFFFF !important;
 }
 
 .btn-outline-btn-vacation:hover {
