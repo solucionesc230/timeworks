@@ -72,10 +72,12 @@
                 <td>{{t.organizacion}}</td>
                 <td>{{t.date_in}}</td>
                 <template v-for="(detail, index) in t.vacationabsencesdetail">
-                  <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + parseFloat(detail.permanent_holidays) + parseFloat(detail.days_replacement)}}</td>
-                  <td :key="'two' + index">{{parseFloat(detail.permanent_holidays)}}</td>
-                  <td :key="'three' + index">{{parseFloat(detail.flexible_holidays)}}</td>
-                  <td :key="'four' + index">{{parseFloat(detail.days_generated)}}</td>
+                  <template v-if="detail.active == 1">
+                    <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + parseFloat(detail.permanent_holidays) + (parseFloat(detail.days_replacement))}}</td>
+                    <td :key="'two' + index">{{parseFloat(detail.permanent_holidays)}}</td>
+                    <td :key="'three' + index">{{parseFloat(detail.flexible_holidays)}}</td>
+                    <td :key="'four' + index">{{parseFloat(detail.days_generated)}}</td>
+                  </template>
                 </template>
                 <td></td>
               </template>
@@ -171,17 +173,135 @@
 
                   </div>
                   <div class="tab-pane fade" :class="navOption == 3 ? 'show active' : ''" role="tabpanel" aria-labelledby="pills-contact-tab">
-                    .3..
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="grid-buttons" >
+                          <button type="button" class="btn btn-outline-info btn-w btn-pd fw" @click="year = 2022;" :class="year == 2022 ? 'active' : ''">{{year}}</button>
+                          <!-- <button type="button" class="btn btn-outline-info btn-center btn-w btn-pd fw" @click="year = 2023;" :class="year == 2023 ? 'active' : ''">2023</button> -->
+                          <!-- <button type="button" class="btn btn-outline-info btn-right btn-w btn-pd fw" @click="year = 2024;" :class="year == 2024 ? 'active' : ''">2024</button> -->
+                        </div>
+                        <div class="grid-dates">
+                          <div class="card-days">
+                            <span>&nbsp;</span>
+                            <div>
+                              <p class="m0 fw color-black">
+                                <template v-for="(detail, index) in t.vacationabsencesdetail">
+                                  <div v-if="detail.active == 1" :key="index">
+                                    {{(parseFloat(detail.permanent_holidays) + parseFloat(detail.flexible_holidays)) + (parseFloat(detail.days_replacement ))}} días generados
+                                  </div>
+                                </template>
+                              </p>
+                              <p class="m0 fw">Desde: [Fecha inicial / fecha ingreso]</p>
+                            </div>
+                          </div>
+
+
+                          <template v-for="(detail, index) in t.vacationabsencesdetail">
+                            <div v-if="detail.active == 1" :key="'ph' + index">
+
+                              <div class="card-days">
+                                <div class="grid-buttons-up-down">
+                                  <span class="icon square arrow up" @click="edit += 1; initialStatusVacationFi += 1; detail.permanent_holidays = parseFloat(detail.permanent_holidays) + 1; "></span>
+                                  <span class="icon square arrow down" @click="edit += 1; initialStatusVacationFi -= 1; detail.permanent_holidays = parseFloat(detail.permanent_holidays) - 1; "></span>
+                                </div>
+                                <p class="m0 fw color-black">
+                                  {{parseFloat(detail.permanent_holidays)}} vacaciones fijas
+                                </p>
+                              </div>
+
+                            </div>
+                          </template>
+
+
+                          <template v-for="(detail, index) in t.vacationabsencesdetail">
+                            <div v-if="detail.active == 1" :key="'fh' + index">
+                              <div class="card-days">
+                                <div class="grid-buttons-up-down">
+                                  <span class="icon square arrow up" @click="edit += 1; initialStatusVacationFl += 1; detail.flexible_holidays = parseFloat(detail.flexible_holidays) + 1; "></span>
+                                  <span class="icon square arrow down" @click="edit += 1; initialStatusVacationFl -= 1; detail.flexible_holidays = parseFloat(detail.permanent_holidays) - 1; "></span>
+                                </div>
+                                <p class="m0 fw color-black">
+                                  {{parseFloat(detail.flexible_holidays )}} vacaciones flexibles
+                                </p>
+                              </div>
+                            </div>
+                          </template>
+
+                          <template v-for="(detail, index) in t.vacationabsencesdetail">
+                            <div v-if="detail.active == 1" :key="index">
+                              <div class="card-days-two">
+                                <p class="m0 fw color-black">
+                                  {{parseFloat(detail.days_replacement )}} días reposición
+                                </p>
+                                <div class="grid-buttons-plus">
+                                  <div class="circle" @click="visible = true; typeDayAdd = 1;detailId = detail.id;">
+                                    <span class="plus">+</span>
+                                  </div>
+                                  <label style="margin-left :2%;margin-right: 2%;">&nbsp;</label>
+                                  <div class="circle" @click="visible = true; typeDayAdd = 2;detailId = detail.id;">
+                                    <span class="plus">-</span>
+                                  </div>
+                                </div>
+                                <div class="grid-buttons-plus">
+                                  <table>
+                                    <tr>
+                                      <th>Días</th>
+                                      <th>Notas</th>
+                                    </tr>
+                                    <tr v-for="vard in detail.vacationabsencesreplacementdays"  :key="vard.id">
+                                      <td>{{(vard.type == 1 ? '+' : vard.type == 2 ? '-' : '')  + parseFloat(vard.days)}}</td>
+                                      <td>{{vard.note}}</td>
+                                    </tr>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+
+                        </div>
+                        <div class="text-footer">
+                          <div>
+                            <p class="mtb0 fw color-black" style="font-size: 1.2rem;">
+                              <template v-for="(detail, index) in t.vacationabsencesdetail">
+                                <div v-if="detail.active == 1" :key="index">
+                                  {{parseFloat(detail.days_generated )}} días disponibles / usados
+                                </div>
+                              </template>
+                            </p>
+                            <p class="mtb0 fw">Válidos hasta el [31/03/23]</p>
+                          </div>
+                          <div class="grid-buttons-plus" v-show="edit > 0">
+
+                            <button type="button" class="btn btn-outline-primary" style="height: 50%; align-self: center; margin-left: 2%;" name="button">Guardar cambios</button>
+                            <button type="button" class="btn btn-outline-danger" style="height: 50%; align-self: center; margin-left: 1%;"
+                            @click="t.vacationabsencesdetail[0].flexible_holidays =  t.vacationabsencesdetail[0].flexible_holidays - (initialStatusVacationFl);
+                            t.vacationabsencesdetail[0].permanent_holidays =  t.vacationabsencesdetail[0].permanent_holidays - (initialStatusVacationFi);
+                            initialStatusVacationFl = 0;
+                            initialStatusVacationFi = 0;
+                            edit = 0;" name="button">
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </td>
-            </template>
+              </div>
+            </td>
           </template>
-        </tr>
-      </template>
-    </tbody>
-  </table>
+        </template>
+
+      </tr>
+    </template>
+  </tbody>
+</table>
 </div>
+<a-modal v-model="visible" :title="typeDayAdd == 1 ? 'Agregar días': typeDayAdd == 2 ? 'Restar días' : ''" @ok="handleOk">
+    <label>Días</label>
+    <input type="number" class="form-control" v-model="daysr">
+    <label>Nota</label>
+    <input type="text" class="form-control" v-model="noter">
+  </a-modal>
 </div>
 
 </template>
@@ -215,6 +335,30 @@ export default class Welcome extends Vue {
   navOption = 1;
   idNav = 0;
   classBtnRequest: any = -1;
+
+  edit = 0;
+
+  initialStatusVacationFi = 0;
+  initialStatusVacationFl = 0;
+
+  visible = false;
+
+  typeDayAdd = 0;//1 suma, 2 resta
+  detailId = 0;
+  daysr = 0;
+  noter = '';
+
+  async handleOk() {
+    const result: any = await axios.post('/api/save-detail-holiday',
+    { id : this.detailId,
+      type : this.typeDayAdd,
+      day : this.daysr,
+      note : this.noter
+    });
+    if (result.status) {
+        this.getUsersActive();
+    }
+  }
 
   async getRequest(id: any) {
     const request = await axios.get('/api/user-request-vacation/' + id + '&' + this.year);
@@ -351,6 +495,155 @@ export default class Welcome extends Vue {
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+.grid-dates {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5%;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  margin-top: 1%;
+}
+
+.card-days {
+  text-align: left;
+  display: grid;
+  grid-template-columns: 10% 90%;
+  height: min-content;
+  border-top: 4px solid #6236ff;
+  margin-top: 4%;
+}
+
+.card-days-two {
+  border-top: 4px solid #6236ff;
+  margin-top: 4%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 78% 15%;
+  height: min-content;
+}
+
+.text-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.m0 {
+  margin-bottom: 0;
+  margin-top: 2%;
+  font-size: 1em;
+}
+
+.mtb0 {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.color-black {
+  color: #000000;
+}
+
+span.square{
+  background: transparent;
+  border-radius:5px;
+  border-bottom:1px solid #FFF;
+  display:inline-block;
+  height:10px;
+  width:10px;
+  cursor: pointer;
+}
+.arrow{
+  position:relative;
+}
+.arrow.up:after{
+  position:absolute;
+  top:7px;
+  left:7px;
+  width: 0;
+  height: 0;
+  content:'';
+  border-style: solid;
+  border-width: 0 7px 8px 7px;
+  border-color: transparent transparent #000000 transparent;
+  border-radius:2px;
+}
+
+.arrow.up:before{
+  position:absolute;
+  top:11px;
+  left:7px;
+  width: 0;
+  height: 0;
+  content:'';
+  border-style: solid;
+  border-width: 0 7px 8px 7px;
+  border-color: transparent transparent transparent transparent;
+  border-radius:2px;
+}
+
+.arrow.down:after{
+  position:absolute;
+  top:10px;
+  left:7px;
+  width: 0;
+  height: 0;
+  content:'';
+  border-style: solid;
+  border-width: 8px 7px 0 7px;
+  border-color: #000000 transparent transparent transparent;
+  border-radius:2px;
+}
+
+.arrow.down:before{
+  position:absolute;
+  top:12px;
+  left:7px;
+  width: 0;
+  height: 0;
+  content:'';
+  border-style: solid;
+  border-width: 8px 7px 0 7px;
+  border-color: transparent transparent transparent transparent;
+  border-radius:2px;
+}
+
+.grid-buttons-up-down {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-buttons-plus {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.btn-plus {
+  border-radius: 80%;
+  height: 80%;
+  border: 1px solid black;
+  background: transparent;
+  padding: 0;
+  padding-left: 12%;
+  padding-right: 12%;
+  padding-bottom: 2%;
+  padding-top: 2%;
+  margin-left: 4%;
+  font-size: 4rem;
+}
+
+.circle{
+  width: 60%;
+  height: 60%;
+  border: 1px solid #000;
+  border-radius: 100%;
+  -moz-border-radius: 100%;
+  -webkit-border-radius: 100%;
+  text-align: center;
+  font: small-caption;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 </style>
