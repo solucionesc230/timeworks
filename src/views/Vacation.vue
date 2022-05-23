@@ -12,7 +12,7 @@
             <div class="card-body">
               <hr class="hr">
               <p class="p-admin">MIS VACACIONES </p>
-              <h2 style="text-align:left;color: #a5acb2;">{{util.days_generated}} días disponibles</h2>
+              <h2 style="text-align:left;color: #a5acb2;">{{parseFloat(util.days_generated)}} días disponibles</h2>
               <p class="p-admin" style="color: #6C757D !important;">Válidos hasta el [31/03/{{year + 1}}]</p>
               <a @click="type = 1" class="btn btn-outline-btn-vacation" :class="type == 1 ? 'active' : ''"><i></i> Solicitar vacaciones o ausencia <i class="fas fa-angle-right"></i></a>
               <a @click="type = 2" class="btn btn-outline-btn-vacation" :class="type == 2 ? 'active' : ''"><i></i> Mi historial <i class="fas fa-angle-right"></i></a>
@@ -22,62 +22,67 @@
         <div class="grid-two-v">
           <div class="card card-shadow height-card" v-show="type == 1">
             <div class="card-body" >
-              <div class="title-one-card-vacation">
-                <p class="p-title-one-card-vacation">Solicitar vacaciones o ausencia</p>
-                <div class="triangulo_der">
-                </div>
+              <div class="loading" v-show="loading">
               </div>
-              <hr class="hr">
-              <p class="p-admin" style="color: #6C757D !important;">Solicita :</p>
-              <p style="color: #000;" class="pd-text text-al text-f fw">{{user.name}}</p>
-              <p style="color: #000;" class="pd-text text-al text-f">{{user.position.name}} / {{user.organizacion}} </p>
-              <p class="p-admin pd-text" style="color: #6C757D !important;">Supervisor(a) :</p>
-              <p style="color: #000;" class="pd-text text-al text-f fw">
-                <template v-if="(user.supervisors).length > 0">
-                  <template v-for="s in user.supervisors">
-                    {{s.name}}
-                  </template>
-                </template>
-                <template v-else>
-                  N/A
-                </template>
-              </p>
-              <hr class="hr">
-              <div class="grid-inputs-one">
-                <div class="form-group text-al">
-                  <label class="fw">Tipo de ausencia</label>
-                  <select v-model="typerequest" class="form-control">
-                    <option value="0">Selecciona una opción</option>
-                    <option value="1">Vacaciones</option>
-                    <option value="2">Vacaciones (medio turno)</option>
-                    <option value="3">Enfermedad</option>
-                    <option value="4">Otro</option>
-                  </select>
-                </div>
-                <div class="form-group text-al">
-                  <label class="fw">Rango de fechas</label>
-                  <div class="grid-inputs-two">
-                    <input v-model="datestart" @change="countWorkDay" type="date" class="form-control" placeholder="Example input">
-                    <input v-model="dateend" @change="countWorkDay" type="date" class="form-control" placeholder="Example input">
+              <div v-show="!loading">
+                <div class="title-one-card-vacation">
+                  <p class="p-title-one-card-vacation">Solicitar vacaciones o ausencia</p>
+                  <div class="triangulo_der">
                   </div>
                 </div>
 
-              </div>
-              <div class="form-group text-al">
-                <label class="fw">Comentario</label>
-                <textarea class="form-control"
-                v-model="comment"
-                rows="3"></textarea>
-              </div>
-              <div class="grid-inputs-two m-lr" style="gap: 4%;">
-                <button @click="requestHoliday" type="button" class="btn btn-outline-success btn-rounded">
-                  <img src="images/Solicitar.png">
-                  Solicitar
-                </button>
-                <button @click="vaciar" type="button" class="btn btn-outline-danger btn-rounded">
-                  <img src="images/cancelar.png">
-                  Cancelar
-                </button>
+                <hr class="hr">
+                <p class="p-admin" style="color: #6C757D !important;">Solicita :</p>
+                <p style="color: #000;" class="pd-text text-al text-f fw">{{user.name}}</p>
+                <p style="color: #000;" class="pd-text text-al text-f">{{user.position.name}} / {{user.organizacion}} </p>
+                <p class="p-admin pd-text" style="color: #6C757D !important;">Supervisor(a) :</p>
+                <p style="color: #000;" class="pd-text text-al text-f fw">
+                  <template v-if="(user.supervisors).length > 0">
+                    <template v-for="s in user.supervisors">
+                      {{s.name}}
+                    </template>
+                  </template>
+                  <template v-else>
+                    N/A
+                  </template>
+                </p>
+                <hr class="hr">
+                <div class="grid-inputs-one">
+                  <div class="form-group text-al">
+                    <label class="fw">Tipo de ausencia</label>
+                    <select v-model="typerequest" class="form-control">
+                      <option value="0">Selecciona una opción</option>
+                      <option value="1">Vacaciones</option>
+                      <option value="2">Vacaciones (medio turno)</option>
+                      <option value="3">Enfermedad</option>
+                      <option value="4">Otro</option>
+                    </select>
+                  </div>
+                  <div class="form-group text-al">
+                    <label class="fw">Rango de fechas</label>
+                    <div class="grid-inputs-two">
+                      <input v-model="datestart" @change="countWorkDay" type="date" class="form-control" placeholder="Example input">
+                      <input v-model="dateend" @change="countWorkDay" type="date" class="form-control" placeholder="Example input">
+                    </div>
+                  </div>
+
+                </div>
+                <div class="form-group text-al">
+                  <label class="fw">Comentario</label>
+                  <textarea class="form-control"
+                  v-model="comment"
+                  rows="3"></textarea>
+                </div>
+                <div class="grid-inputs-two m-lr" style="gap: 4%;" v-show="util.days_generated > 0">
+                  <button @click="requestHoliday" type="button" class="btn btn-outline-success btn-rounded">
+                    <img src="images/Solicitar.png">
+                    Solicitar
+                  </button>
+                  <button @click="vaciar" type="button" class="btn btn-outline-danger btn-rounded">
+                    <img src="images/cancelar.png">
+                    Cancelar
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -114,6 +119,7 @@ export default class Welcome extends Vue {
   dateend = "";
   daysuse: any = [];
   daysholidays = 0;
+  loading = false;
 
   async mounted() {
     this.user = this.$store.state.user;
@@ -155,7 +161,7 @@ export default class Welcome extends Vue {
         date1 = new Date(date1);
       }
       const result = delta - weeks;
-      this.daysholidays = result;
+      this.daysholidays = this.typerequest == 2 ? 0.5 : result;
       this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de vacaciones (restando " + this.daysholidays + " días de los " + this.util.days_generated + " días que tengo disponibles correspondientes a los días generados en " + this.year + ". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
       + ((this.user['supervisors']).length == 0 ? "" : this.user['supervisors'][0].name);
     }
@@ -171,6 +177,7 @@ export default class Welcome extends Vue {
   }
 
   async requestHoliday() {
+    this.loading = true;
     const result: any = await axios.post('/api/send-request-holiday',
     { userid : this.user.id,
       detailid : this.util.id,
@@ -186,10 +193,11 @@ export default class Welcome extends Vue {
     if (result.data.status == true) {
       this.daysUtil();
       this.vaciar();
+      this.loading = false;
     }
     const success = Modal.success;
     success({
-      title: "Tu información se ha guardado correctamente" ,
+      title: "Tu solicitud se ha guardado correctamente" ,
       content: '',
       okText: 'Aceptar',
     });
