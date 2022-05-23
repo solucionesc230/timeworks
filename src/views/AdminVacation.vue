@@ -56,7 +56,11 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(t, index) in data">
+          <template v-if="data.length == 0">
+            <div class="loading">
+            </div>
+          </template>
+          <template v-for="(t, index) in data" >
             <tr :key="t.id" class="text-al border-n" >
               <template v-if="t.organizacion != null">
                 <template v-if="
