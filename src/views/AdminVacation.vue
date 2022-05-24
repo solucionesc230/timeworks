@@ -365,6 +365,7 @@ export default class Welcome extends Vue {
 
   visible = false;
   loadingRequest = false;
+  loading = false;
 
   typeDayAdd = 0;//1 suma, 2 resta
   detailId = 0;
