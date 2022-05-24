@@ -61,7 +61,7 @@
             </div>
           </template>
           <template v-for="(t, index) in data" >
-            <tr :key="t.id" class="text-al border-n" >
+            <tr :key="t.id" class="text-al border-n" :style="t.id == idNav ? 'background: #f0f6ff;' : ''">
               <template v-if="t.organizacion != null">
                 <template v-if="
                 (checkboxOrgCm == true && (t.organizacion).search('C230 Consultores') >= 0)
@@ -87,13 +87,16 @@
               </template>
             </template>
           </tr>
-          <tr v-show="t.id == idNav" :key="'child' + index">
+          <!-- Chid -->
+          <tr v-show="t.id == idNav" :key="'child' + index" style="background: #f0f6ff;">
             <template v-if="t.organizacion != null">
+              <!-- Filter companies -->
               <template v-if="
               (checkboxOrgCm == true && (t.organizacion).search('C230 Consultores') >= 0)
               || (checkboxOrgFi == true && (t.organizacion).search('IDEA') >= 0)
               || (checkboxOrgCu == true && (t.organizacion).search('C230 Consulting') >= 0)
               || (checkboxOrgSu == true && (t.organizacion).search('Supernova') >= 0)">
+
               <td colspan="8" style="border: 1px solid red;">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                   <li class="nav-item" role="presentation">
@@ -107,77 +110,87 @@
                   </li>
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
+                  <!-- Historial -->
                   <div class="tab-pane fade" :class="navOption == 1 ? 'show active' : ''" role="tabpanel" aria-labelledby="pills-home-tab">
                     <vacation-history v-if="navOption == 1 && t.id == idNav" :userId="t.id" :year="year" :origin="'Admin'"></vacation-history>
                   </div>
+                  <!-- End historial -->
+                  <!-- Solicitudes -->
                   <div class="tab-pane fade" :class="navOption == 2 ? 'show active' : ''" role="tabpanel" aria-labelledby="pills-profile-tab">
-                    <div class="card">
+                    <div class="card card-shadow">
                       <div class="card-body">
-                        <div class="grid-buttons" >
-                          <button v-for="(r, index) in request"  :key="r.id" type="button" @click="dataRequest = r;classBtnRequest = index;" class="btn btn-outline-info btn-w btn-pd fw" :class="classBtnRequest == index ? 'active' : ''">Solicitud {{index + 1}}</button>
-                        </div>
-                        <template v-if="dataRequest != null">
-                          <hr class="hr">
-                          <p class="p-admin pd-text" style="color: #6C757D !important;">Supervisor(a) :</p>
-                          <p style="color: #000;" class="pd-text text-al text-f fw">
-                            {{dataRequest.name}}
-                          </p>
-                          <hr class="hr">
-                          <div class="grid-inputs-one">
-                            <div class="form-group text-al">
-                              <label class="fw">Tipo de ausencia</label>
-                              <select v-model="dataRequest.type" class="form-control">
-                                <option value="0">Selecciona una opción</option>
-                                <option value="1">Vacaciones</option>
-                                <option value="2">Vacaciones (medio turno)</option>
-                                <option value="3">Enfermedad</option>
-                                <option value="4">Otro</option>
-                              </select>
-                            </div>
-                            <div class="form-group text-al">
-                              <label class="fw">Rango de fechas</label>
-                              <div class="grid-inputs-two">
-                                <input v-model="dataRequest.date_start" type="date" class="form-control" placeholder="Example input">
-                                <input v-model="dataRequest.date_end" type="date" class="form-control" placeholder="Example input">
-                              </div>
-                            </div>
+                        <div class="loading" v-show="loadingRequest">
 
+                        </div>
+                        <div v-show="!loadingRequest">
+                          <div class="grid-buttons" >
+                            <button v-for="(r, index) in request"  :key="r.id" type="button" @click="dataRequest = r;classBtnRequest = index;" class="btn btn-outline-info btn-w btn-pd fw" :class="classBtnRequest == index ? 'active' : ''">Solicitud {{index + 1}}</button>
                           </div>
-                          <div class="form-group text-al">
-                            <label class="fw">Comentario</label>
-                            <textarea v-model="dataRequest.comment" class="form-control"
-                            rows="3"></textarea>
-                          </div>
-                          <div class="form-group text-al">
-                            <label class="fw">Notas de supervisor(a)</label>
-                            <textarea v-model="dataRequest.supervisor_note" class="form-control"
-                            rows="3"></textarea>
-                          </div>
-                          <div class="grid-inputs-two m-lr" style="gap: 4%;" v-if="dataRequest.status == 1">
-                            <button @click="requestHoliday(2)" type="button" class="btn btn-outline-success btn-rounded">
-                              <img src="images/Solicitar.png">
-                              Aprobar
-                            </button>
-                            <button @click="requestHoliday(3)" type="button" class="btn btn-outline-danger btn-rounded">
-                              <img src="images/cancelar.png">
-                              Rechazar
-                            </button>
-                          </div>
-                          <div class="grid-inputs-two m-lr" style="gap: 4%;" v-else>
-                            <template v-if="dataRequest.status == 2">
-                              <button type="button" class="btn btn-outline-info">Aprobado</button>
-                            </template>
-                            <template v-if="dataRequest.status == 3">
-                              <button type="button" class="btn btn-outline-danger">Rechazado</button>
-                            </template>
-                          </div>
-                        </template>
+                          <template v-if="dataRequest != null">
+                            <hr class="hr">
+                            <p class="p-admin pd-text" style="color: #6C757D !important;">Supervisor(a) :</p>
+                            <p style="color: #000;" class="pd-text text-al text-f fw">
+                              {{dataRequest.name}}
+                            </p>
+                            <hr class="hr">
+                            <div class="grid-inputs-one">
+                              <div class="form-group text-al">
+                                <label class="fw">Tipo de ausencia</label>
+                                <select v-model="dataRequest.type" class="form-control">
+                                  <option value="0">Selecciona una opción</option>
+                                  <option value="1">Vacaciones</option>
+                                  <option value="2">Vacaciones (medio turno)</option>
+                                  <option value="3">Enfermedad</option>
+                                  <option value="4">Otro</option>
+                                </select>
+                              </div>
+                              <div class="form-group text-al">
+                                <label class="fw">Rango de fechas</label>
+                                <div class="grid-inputs-two">
+                                  <input v-model="dataRequest.date_start" type="date" class="form-control" placeholder="Example input">
+                                  <input v-model="dataRequest.date_end" type="date" class="form-control" placeholder="Example input">
+                                </div>
+                              </div>
+
+                            </div>
+                            <div class="form-group text-al">
+                              <label class="fw">Comentario</label>
+                              <textarea v-model="dataRequest.comment" class="form-control"
+                              rows="3"></textarea>
+                            </div>
+                            <div class="form-group text-al">
+                              <label class="fw">Notas de supervisor(a)</label>
+                              <textarea v-model="dataRequest.supervisor_note" class="form-control"
+                              rows="3"></textarea>
+                            </div>
+                            <div class="grid-inputs-two m-lr" style="gap: 4%;" v-if="dataRequest.status == 1">
+                              <button @click="requestHoliday(2)" type="button" class="btn btn-outline-success btn-rounded">
+                                <img src="images/Solicitar.png">
+                                Aprobar
+                              </button>
+                              <button @click="requestHoliday(3)" type="button" class="btn btn-outline-danger btn-rounded">
+                                <img src="images/cancelar.png">
+                                Rechazar
+                              </button>
+                            </div>
+                            <div class="grid-inputs-two m-lr" style="gap: 4%;" v-else>
+                              <template v-if="dataRequest.status == 2">
+                                <button type="button" class="btn btn-outline-info">Aprobado</button>
+                              </template>
+                              <template v-if="dataRequest.status == 3">
+                                <button type="button" class="btn btn-outline-danger">Rechazado</button>
+                              </template>
+                            </div>
+                          </template>
+                        </div>
                       </div>
                     </div>
 
                   </div>
+                  <!-- End Solicitudes -->
+                  <!-- Detalles -->
                   <div class="tab-pane fade" :class="navOption == 3 ? 'show active' : ''" role="tabpanel" aria-labelledby="pills-contact-tab">
-                    <div class="card">
+                    <div class="card card-shadow">
                       <div class="card-body">
                         <div class="grid-buttons" >
                           <button type="button" class="btn btn-outline-info btn-w btn-pd fw" @click="year = 2022;" :class="year == 2022 ? 'active' : ''">{{year}}</button>
@@ -290,21 +303,26 @@
                     </div>
                   </div>
                 </div>
+                <!-- End detalles -->
               </div>
             </td>
-          </template>
+          </template><!--End of filter-->
         </template>
-
       </tr>
+      <!-- End child -->
     </template>
   </tbody>
 </table>
 </div>
 <a-modal v-model="visible" :title="typeDayAdd == 1 ? 'Agregar días': typeDayAdd == 2 ? 'Restar días' : ''" @ok="handleOk">
+  <div v-if="!loading">
     <label>Días</label>
     <input type="number" class="form-control" v-model="daysr">
     <label>Nota</label>
     <input type="text" class="form-control" v-model="noter">
+  </div>
+  <div class="loading" v-show="loading">
+  </div>
   </a-modal>
 </div>
 
@@ -346,6 +364,7 @@ export default class Welcome extends Vue {
   initialStatusVacationFl = 0;
 
   visible = false;
+  loadingRequest = false;
 
   typeDayAdd = 0;//1 suma, 2 resta
   detailId = 0;
@@ -353,6 +372,7 @@ export default class Welcome extends Vue {
   noter = '';
 
   async handleOk() {
+    this.loading = true;
     const result: any = await axios.post('/api/save-detail-holiday',
     { id : this.detailId,
       type : this.typeDayAdd,
@@ -361,6 +381,10 @@ export default class Welcome extends Vue {
     });
     if (result.status) {
         this.getUsersActive();
+        this.visible = false;
+        this.daysr = 0;
+        this.noter = '';
+        this.loading = false;
     }
   }
 
@@ -380,20 +404,19 @@ export default class Welcome extends Vue {
   }
 
   async requestHoliday(status: any) {
+    this.loadingRequest = true;
     const result: any = await axios.post('/api/admin-request-holiday',
     { id : this.dataRequest.id,
       supervisorNote : this.dataRequest.supervisor_note,
       status : status
     });
     if (result.data) {
-      console.log('resuldar');
       this.dataRequest = result.data.data;
-      console.log(result.data);
-
+      this.loadingRequest = false;
     }
     const success = Modal.success;
     success({
-      title: "Tu información se ha guardado correctamente" ,
+      title:  status == 2 ? 'Aprobado' : status == 3 ? 'Rechazado' : '',
       content: '',
       okText: 'Aceptar',
     });
