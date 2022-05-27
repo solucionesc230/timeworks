@@ -50,20 +50,34 @@
                 <div class="grid-inputs-one">
                   <div class="form-group text-al">
                     <label class="fw">Tipo de ausencia</label>
-                    <select v-model="typerequest" class="form-control">
+                    <select v-model="typerequest" class="form-control" @click="countWorkDay">
                       <option value="0">Selecciona una opción</option>
                       <option value="1">Vacaciones</option>
                       <option value="2">Vacaciones (medio turno)</option>
                       <option value="3">Enfermedad</option>
                       <option value="4">Otro</option>
                     </select>
+                    <input v-if="typerequest == 4" v-model="commentother" type="text" class="form-control" placeholder="Escriba un comentario" style="margin-top: 2%;">
                   </div>
                   <div class="form-group text-al">
                     <label class="fw">Rango de fechas</label>
                     <div class="grid-inputs-two">
-                      <input v-model="datestart" @change="countWorkDay" type="date" class="form-control" placeholder="Example input">
-                      <input v-model="dateend" @change="countWorkDay" type="date" class="form-control" placeholder="Example input">
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" style="font-size:small;">Inicio:</span>
+                        </div>
+                        <input v-model="datestart" @change="countWorkDay" type="date" class="form-control" style="font-size: small;">
+                      </div>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" style="font-size:small;">Fin:</span>
+                        </div>
+                        <input v-model="dateend" @change="countWorkDay" type="date" class="form-control" style="font-size: small;">
+                      </div>
+                      <!-- <input v-model="datestart" @change="countWorkDay" type="date" class="form-control" placeholder="Example input"> -->
+                      <!-- <input v-model="dateend" @change="countWorkDay" type="date" class="form-control" placeholder="Example input"> -->
                     </div>
+                    <label style="font-size: smaller; margin-top: 0; margin-bottom: 0; padding: 0;color: #319397;font-weight: bold;"><span>⚠</span> Se reducirán {{daysholidays}} días. Tras la aprobación, tus días disponibles serán {{parseFloat(util.days_generated) - daysholidays}}</label>
                   </div>
 
                 </div>
@@ -120,6 +134,7 @@ export default class Welcome extends Vue {
   daysuse: any = [];
   daysholidays = 0;
   loading = false;
+  commentother = "";
 
   async mounted() {
     this.user = this.$store.state.user;
@@ -137,12 +152,27 @@ export default class Welcome extends Vue {
   }
 
   countWorkDay(){
+    if (this.typerequest != 4) {
+      this.commentother = "";
+    }
     if (this.datestart != "" && this.dateend != "") {
+      // Agregamos validacion de fechas
+      if(this.datestart > this.dateend){
+        this.showError("La fecha inicial no puede ser mayor a la fecha fin");
+        this.datestart = "";
+        this.dateend = "";
+        this.daysholidays = 0;
+        return;
+      }
+
       let date1: any = this.stringToDate(this.datestart);
       const date2: any = this.stringToDate(this.dateend);
       const delta: any = (date2-date1) / (1000 * 60 * 60 * 24) + 1; // calcula el tiempo total
+
       let weeks = 0;
+      // Iteramos el numero total de dias
       for(let i = 0; i < delta; i++){
+
         if (date1.getDay () == 0 || date1.getDay () == 6){
           weeks ++; // agrega 1 si es sábado o domingo
         }else{
@@ -154,6 +184,7 @@ export default class Welcome extends Vue {
           month = '0' + month;
           if (day.length < 2)
           day = '0' + day;
+
           this.daysuse.push([year, month, day].join('-'));
         }
         date1 = date1.valueOf();
@@ -161,8 +192,14 @@ export default class Welcome extends Vue {
         date1 = new Date(date1);
       }
       const result = delta - weeks;
-      this.daysholidays = this.typerequest == 2 ? 0.5 : result;
-      this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de vacaciones (restando " + this.daysholidays + " días de los " + this.util.days_generated + " días que tengo disponibles correspondientes a los días generados en " + this.year + ". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
+      this.daysholidays = this.typerequest == 2 ? (0.5 * result) : result;
+      if (this.daysholidays > this.util.days_generated) {
+        this.showError("No se puede exeder los dias solicitados a los dias disponibles");
+        this.dateend = "";
+        this.daysholidays = 0;
+        return;
+      }
+      this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de vacaciones (restando " + this.daysholidays + " días de los " + this.util.days_generated + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
       + ((this.user['supervisors']).length == 0 ? "" : this.user['supervisors'][0].name);
     }
   }
@@ -174,9 +211,41 @@ export default class Welcome extends Vue {
     this.dateend = "";
     this.daysuse = [];
     this.daysholidays = 0;
+    this.commentother = "";
+  }
+
+  showAlert(title: string) {
+    const confirm = Modal.info;
+    confirm({
+      title: title ,
+      content: '',
+      okText: 'Aceptar',
+    });
+  }
+
+  showError(title: string) {
+    const confirm = Modal.error;
+    confirm({
+      title: title ,
+      content: '',
+      okText: 'Aceptar',
+    });
   }
 
   async requestHoliday() {
+    if (this.typerequest == 0) {
+      this.showAlert("El tipo de ausencia es requerido");
+      return;
+    }
+    if (this.datestart == "" && this.dateend == "") {
+      this.showAlert("La fecha de inicio y fin es requerida");
+      return;
+    }
+    if (this.comment == "") {
+      this.showAlert("El comentario es requerido");
+      return;
+    }
+
     this.loading = true;
     const result: any = await axios.post('/api/send-request-holiday',
     { userid : this.user.id,
@@ -188,7 +257,8 @@ export default class Welcome extends Vue {
       comment: this.comment,
       daysuse: this.daysuse,
       daysholidays: this.daysholidays,
-      year : this.year
+      year : this.year,
+      commentother : this.commentother,
     });
     if (result.data.status == true) {
       this.daysUtil();
@@ -197,7 +267,7 @@ export default class Welcome extends Vue {
     }
     const success = Modal.success;
     success({
-      title: "Tu solicitud se ha guardado correctamente" ,
+      title: "Tu solicitud se ha enviado exitosamente" ,
       content: '',
       okText: 'Aceptar',
     });
@@ -207,7 +277,7 @@ export default class Welcome extends Vue {
 <style media="screen">
 .img-w {
   background-image: url("/assets/images/Image.png");
-  height: 80vh;
+  height: 90vh;
   background-repeat: no-repeat;
   background-position: center top;
   padding-bottom: 10%;
@@ -236,7 +306,7 @@ export default class Welcome extends Vue {
   background-image: url("/assets/images/Image.png");
   background-repeat: no-repeat;
   background-position: 24em top;
-  height: 76vh;
+  height: 88vh;
 }
 
 @media (min-width: 1025px) and (max-width: 1200px) {

@@ -35,7 +35,7 @@
             </thead>
             <tbody>
               <tr class="text-al border-n" v-for="t in history"  :key="t.id">
-                <td class="fw">{{t.type == 1 ? 'Vacaciones' : t.type == 2 ? 'Vacaciones (medio turno)' : t.type == 3 ? 'Enfermedad' : t.type == 4 ? 'Otro' : ''}}</td>
+                <td class="fw">{{t.type == 1 ? 'Vacaciones' : t.type == 2 ? 'Vacaciones (medio turno)' : t.type == 3 ? 'Enfermedad' : t.type == 4 ? 'Otro - ' + t.comment : ''}}</td>
                 <td class="fw">{{t.fecha}}</td>
                 <td>
                   <span :class="t.status == 1 ? 'span-revision' : t.status == 2 ? 'span-aprobado' : t.status == 3 ? 'span-rechazado' : t.status == 4 ? 'span-finalizado':''">

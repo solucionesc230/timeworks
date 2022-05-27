@@ -69,7 +69,7 @@
                 || (checkboxOrgCu == true && (t.organizacion).search('C230 Consulting') >= 0)
                 || (checkboxOrgSu == true && (t.organizacion).search('Supernova') >= 0)">
                 <td class="fw">
-                  <button v-show="t.id != idNav" class="btn btn-sm" @click="idNav = t.id;" style="background-color: transparent !important;"><i class="fa fa-angle-down"></i></button>
+                  <button v-show="t.id != idNav" class="btn btn-sm" @click="idNav = t.id;dataRequest = null;request = [];navOption = 1;" style="background-color: transparent !important;"><i class="fa fa-angle-down"></i></button>
                   <button v-show="t.id == idNav" class="btn btn-sm" @click="idNav = 0;" style="background-color: transparent !important;"><i class="fa fa-angle-up"></i></button>
                   {{t.name}}
                 </td>
@@ -77,7 +77,7 @@
                 <td>{{t.date_in}}</td>
                 <template v-for="(detail, index) in t.vacationabsencesdetail">
                   <template v-if="detail.active == 1">
-                    <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + parseFloat(detail.permanent_holidays) + (parseFloat(detail.days_replacement))}}</td>
+                    <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + (parseFloat(detail.days_replacement))}}</td>
                     <td :key="'two' + index">{{parseFloat(detail.permanent_holidays)}}</td>
                     <td :key="'three' + index">{{parseFloat(detail.flexible_holidays)}}</td>
                     <td :key="'four' + index">{{parseFloat(detail.days_generated)}}</td>
@@ -100,13 +100,13 @@
               <td colspan="8" style="border: 1px solid red;">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <a class="nav-link active" @click="navOption = 1;" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Historial</a>
+                    <a class="nav-link" :class="navOption == 1 ? 'active' : ''" @click="navOption = 1;" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Historial</a>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <a class="nav-link" @click="navOption = 2;getRequest(t.id)" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Solicitudes</a>
+                    <a class="nav-link" :class="navOption == 2 ? 'active' : ''" @click="navOption = 2;getRequest(t.id)" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Solicitudes</a>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <a class="nav-link" @click="navOption = 3;" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Editar</a>
+                    <a class="nav-link" :class="navOption == 3 ? 'active' : ''" @click="navOption = 3;" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Editar</a>
                   </li>
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
@@ -133,7 +133,7 @@
                               {{dataRequest.name}}
                             </p>
                             <hr class="hr">
-                            <div class="grid-inputs-one">
+                            <div class="grid-inputs-one-admin">
                               <div class="form-group text-al">
                                 <label class="fw">Tipo de ausencia</label>
                                 <select v-model="dataRequest.type" class="form-control">
@@ -143,22 +143,39 @@
                                   <option value="3">Enfermedad</option>
                                   <option value="4">Otro</option>
                                 </select>
+                                <template v-if="dataRequest.type == 4">
+                                  <input v-model="dataRequest.commentother" type="text" class="form-control" placeholder="Escriba un comentario" style="margin-top: 2%;">
+                                </template>
+                              </div>
+                              <div class="form-group text-al">
+                                <label class="fw">Días solicitados</label>
+                                <input type="text" v-model="dataRequest.days" class="form-control">
                               </div>
                               <div class="form-group text-al">
                                 <label class="fw">Rango de fechas</label>
                                 <div class="grid-inputs-two">
-                                  <input v-model="dataRequest.date_start" type="date" class="form-control" placeholder="Example input">
-                                  <input v-model="dataRequest.date_end" type="date" class="form-control" placeholder="Example input">
+                                  <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                      <span class="input-group-text" style="font-size:small;">Inicio:</span>
+                                    </div>
+                                    <input v-model="dataRequest.date_start" type="date" class="form-control" >
+                                  </div>
+                                  <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                      <span class="input-group-text" style="font-size:small;">Fin:</span>
+                                    </div>
+                                    <input v-model="dataRequest.date_end" type="date" class="form-control" >
+                                  </div>
                                 </div>
                               </div>
 
                             </div>
                             <div class="form-group text-al">
-                              <label class="fw">Comentario</label>
+                              <label class="fw">Comentario compartido</label>
                               <textarea v-model="dataRequest.comment" class="form-control"
                               rows="3"></textarea>
                             </div>
-                            <div class="form-group text-al">
+               <div class="form-group text-al">
                               <label class="fw">Notas de supervisor(a)</label>
                               <textarea v-model="dataRequest.supervisor_note" class="form-control"
                               rows="3"></textarea>
@@ -204,7 +221,7 @@
                               <p class="m0 fw color-black">
                                 <template v-for="(detail, index) in t.vacationabsencesdetail">
                                   <div v-if="detail.active == 1" :key="index">
-                                    {{(parseFloat(detail.permanent_holidays) + parseFloat(detail.flexible_holidays)) + (parseFloat(detail.days_replacement ))}} días generados
+                                  {{ parseFloat(detail.flexible_holidays)) + (parseFloat(detail.days_replacement ))}} días generados
                                   </div>
                                 </template>
                               </p>
@@ -445,6 +462,12 @@ export default class Welcome extends Vue {
 
 .table-info-new {
   background: #f4f7f9;
+}
+
+.grid-inputs-one-admin {
+  display: grid;
+  grid-template-columns: 25% 25% 50%;
+  gap : 5px;
 }
 </style>
 <style media="screen">
