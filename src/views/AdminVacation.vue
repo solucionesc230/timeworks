@@ -77,7 +77,7 @@
                 <td>{{t.date_in}}</td>
                 <template v-for="(detail, index) in t.vacationabsencesdetail">
                   <template v-if="detail.active == 1">
-                    <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + (parseFloat(detail.days_replacement))}}</td>
+                    <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + parseFloat(detail.permanent_holidays) + (parseFloat(detail.days_replacement))}}</td>
                     <td :key="'two' + index">{{parseFloat(detail.permanent_holidays)}}</td>
                     <td :key="'three' + index">{{parseFloat(detail.flexible_holidays)}}</td>
                     <td :key="'four' + index">{{parseFloat(detail.days_generated)}}</td>
@@ -209,6 +209,10 @@
                   <div class="tab-pane fade" :class="navOption == 3 ? 'show active' : ''" role="tabpanel" aria-labelledby="pills-contact-tab">
                     <div class="card card-shadow">
                       <div class="card-body">
+                        <div class="loading" v-show="loadingRequest">
+
+                        </div>
+                        <div v-show="!loadingRequest">
                         <div class="grid-buttons" >
                           <button type="button" class="btn btn-outline-info btn-w btn-pd fw" @click="year = 2022;" :class="year == 2022 ? 'active' : ''">{{year}}</button>
                           <!-- <button type="button" class="btn btn-outline-info btn-center btn-w btn-pd fw" @click="year = 2023;" :class="year == 2023 ? 'active' : ''">2023</button> -->
@@ -221,7 +225,7 @@
                               <p class="m0 fw color-black">
                                 <template v-for="(detail, index) in t.vacationabsencesdetail">
                                   <div v-if="detail.active == 1" :key="index">
-                                  {{ parseFloat(detail.flexible_holidays)) + (parseFloat(detail.days_replacement ))}} días generados
+                                    {{(parseFloat(detail.permanent_holidays) + parseFloat(detail.flexible_holidays)) + (parseFloat(detail.days_replacement ))}} días generados
                                   </div>
                                 </template>
                               </p>
@@ -251,8 +255,16 @@
                             <div v-if="detail.active == 1" :key="'fh' + index">
                               <div class="card-days">
                                 <div class="grid-buttons-up-down">
-                                  <span class="icon square arrow up" @click="edit += 1; initialStatusVacationFl += 1; detail.flexible_holidays = parseFloat(detail.flexible_holidays) + 1; "></span>
-                                  <span class="icon square arrow down" @click="edit += 1; initialStatusVacationFl -= 1; detail.flexible_holidays = parseFloat(detail.permanent_holidays) - 1; "></span>
+                                  <span class="icon square arrow up"
+                                    @click="edit += 1; initialStatusVacationFl += 1; initialStatusVacationDg += 1;
+                                    detail.flexible_holidays = parseFloat(detail.flexible_holidays) + 1;
+                                    detail.days_generated = parseFloat(detail.days_generated) + 1;">
+                                  </span>
+                                  <span class="icon square arrow down"
+                                    @click="edit += 1; initialStatusVacationFl -= 1; initialStatusVacationDg -= 1;
+                                    detail.flexible_holidays = parseFloat(detail.permanent_holidays) - 1;
+                                    detail.days_generated = parseFloat(detail.days_generated) - 1;">
+                                  </span>
                                 </div>
                                 <p class="m0 fw color-black">
                                   {{parseFloat(detail.flexible_holidays )}} vacaciones flexibles
@@ -306,18 +318,22 @@
                           </div>
                           <div class="grid-buttons-plus" v-show="edit > 0">
 
-                            <button type="button" class="btn btn-outline-primary" style="height: 50%; align-self: center; margin-left: 2%;" name="button">Guardar cambios</button>
+                            <button type="button" class="btn btn-outline-primary" style="height: 50%; align-self: center; margin-left: 2%;" name="button" @click="saveDaysUpdate(t.vacationabsencesdetail)">Guardar cambios</button>
                             <button type="button" class="btn btn-outline-danger" style="height: 50%; align-self: center; margin-left: 1%;"
-                            @click="t.vacationabsencesdetail[0].flexible_holidays =  t.vacationabsencesdetail[0].flexible_holidays - (initialStatusVacationFl);
+                            @click="
+                            t.vacationabsencesdetail[0].flexible_holidays =  t.vacationabsencesdetail[0].flexible_holidays - (initialStatusVacationFl);
                             t.vacationabsencesdetail[0].permanent_holidays =  t.vacationabsencesdetail[0].permanent_holidays - (initialStatusVacationFi);
+                            t.vacationabsencesdetail[0].days_generated =  t.vacationabsencesdetail[0].days_generated - (initialStatusVacationDg);
                             initialStatusVacationFl = 0;
                             initialStatusVacationFi = 0;
+                            initialStatusVacationDg = 0;
                             edit = 0;" name="button">
                             Cancelar
                           </button>
                         </div>
                       </div>
                     </div>
+                  </div>
                   </div>
                 </div>
                 <!-- End detalles -->
@@ -379,6 +395,7 @@ export default class Welcome extends Vue {
 
   initialStatusVacationFi = 0;
   initialStatusVacationFl = 0;
+  initialStatusVacationDg = 0;
 
   visible = false;
   loadingRequest = false;
@@ -435,6 +452,20 @@ export default class Welcome extends Vue {
     const success = Modal.success;
     success({
       title:  status == 2 ? 'Aprobado' : status == 3 ? 'Rechazado' : '',
+      content: '',
+      okText: 'Aceptar',
+    });
+  }
+
+  async saveDaysUpdate(data: any){
+    this.loadingRequest = true;
+    const result: any = await axios.post('/api/save-days-update', data[0]);
+    if (result.data) {
+      this.loadingRequest = false;
+    }
+    const success = Modal.success;
+    success({
+      title:  'información actualizada',
       content: '',
       okText: 'Aceptar',
     });

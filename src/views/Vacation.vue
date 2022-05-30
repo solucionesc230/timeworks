@@ -165,6 +165,14 @@ export default class Welcome extends Vue {
         return;
       }
 
+      if(this.datestart == this.dateend){
+        this.showError("Se debe solicitar al menos 1/2 dia");
+        this.datestart = "";
+        this.dateend = "";
+        this.daysholidays = 0;
+        return;
+      }
+
       let date1: any = this.stringToDate(this.datestart);
       const date2: any = this.stringToDate(this.dateend);
       const delta: any = (date2-date1) / (1000 * 60 * 60 * 24) + 1; // calcula el tiempo total
