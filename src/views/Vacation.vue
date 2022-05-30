@@ -165,14 +165,6 @@ export default class Welcome extends Vue {
         return;
       }
 
-      if(this.datestart == this.dateend){
-        this.showError("Se debe solicitar al menos 1/2 dia");
-        this.datestart = "";
-        this.dateend = "";
-        this.daysholidays = 0;
-        return;
-      }
-
       let date1: any = this.stringToDate(this.datestart);
       const date2: any = this.stringToDate(this.dateend);
       const delta: any = (date2-date1) / (1000 * 60 * 60 * 24) + 1; // calcula el tiempo total
@@ -205,6 +197,13 @@ export default class Welcome extends Vue {
         this.showError("No se puede exeder los dias solicitados a los dias disponibles");
         this.dateend = "";
         this.daysholidays = 0;
+        return;
+      }
+      // Validamos que se seleccione mas de 1/2 dia
+      if(this.daysholidays == 0){
+        this.showError("Se debe solicitar al menos 1/2 dia");
+        this.datestart = "";
+        this.dateend = "";
         return;
       }
       this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de vacaciones (restando " + this.daysholidays + " días de los " + this.util.days_generated + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
