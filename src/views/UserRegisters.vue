@@ -119,13 +119,10 @@ import {Chart} from 'highcharts-vue'
 import XLSX from "xlsx";
 import {Modal} from "ant-design-vue";
 import Loading from 'vue-loading-overlay';
-// Import stylesheet
 import 'vue-loading-overlay/dist/vue-loading.css';
 
 @Component({
-  components:{
-    RotateSquare2, MonthPickerInput, vSelect, Chart, Loading
-  }
+  components: {RotateSquare2, MonthPickerInput, vSelect, Chart, Loading}
 })
 
 export default class UsersRegisters extends Vue {
