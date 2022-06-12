@@ -136,20 +136,21 @@
                             <div class="grid-inputs-one-admin">
                               <div class="form-group text-al">
                                 <label class="fw">Tipo de ausencia</label>
-                                <select v-model="dataRequest.type" class="form-control">
+                                <select disabled v-model="dataRequest.type" class="form-control">
                                   <option value="0">Selecciona una opción</option>
                                   <option value="1">Vacaciones</option>
                                   <option value="2">Vacaciones (medio turno)</option>
                                   <option value="3">Enfermedad</option>
                                   <option value="4">Otro</option>
+                                  <option value="5">Días no pagados</option>
                                 </select>
                                 <template v-if="dataRequest.type == 4">
-                                  <input v-model="dataRequest.commentother" type="text" class="form-control" placeholder="Escriba un comentario" style="margin-top: 2%;">
+                                  <input disabled v-model="dataRequest.commentother" type="text" class="form-control" placeholder="Escriba un comentario" style="margin-top: 2%;">
                                 </template>
                               </div>
                               <div class="form-group text-al">
                                 <label class="fw">Días solicitados</label>
-                                <input type="text" v-model="dataRequest.days" class="form-control">
+                                <input disabled type="text" v-model="dataRequest.days" class="form-control">
                               </div>
                               <div class="form-group text-al">
                                 <label class="fw">Rango de fechas</label>
@@ -158,13 +159,13 @@
                                     <div class="input-group-prepend">
                                       <span class="input-group-text" style="font-size:small;">Inicio:</span>
                                     </div>
-                                    <input v-model="dataRequest.date_start" type="date" class="form-control" >
+                                    <input disabled v-model="dataRequest.date_start" type="date" class="form-control" >
                                   </div>
                                   <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                       <span class="input-group-text" style="font-size:small;">Fin:</span>
                                     </div>
-                                    <input v-model="dataRequest.date_end" type="date" class="form-control" >
+                                    <input disabled v-model="dataRequest.date_end" type="date" class="form-control" >
                                   </div>
                                 </div>
                               </div>
@@ -172,20 +173,20 @@
                             </div>
                             <div class="form-group text-al">
                               <label class="fw">Comentario compartido</label>
-                              <textarea v-model="dataRequest.comment" class="form-control"
+                              <textarea disabled v-model="dataRequest.comment" class="form-control"
                               rows="3"></textarea>
                             </div>
-               <div class="form-group text-al">
+                            <div class="form-group text-al">
                               <label class="fw">Notas de supervisor(a)</label>
                               <textarea v-model="dataRequest.supervisor_note" class="form-control"
                               rows="3"></textarea>
                             </div>
                             <div class="grid-inputs-two m-lr" style="gap: 4%;" v-if="dataRequest.status == 1">
-                              <button @click="requestHoliday(2)" type="button" class="btn btn-outline-success btn-rounded">
+                              <button v-if="role != 5" @click="requestHoliday(2)" type="button" class="btn btn-outline-success btn-rounded">
                                 <img src="images/Solicitar.png">
                                 Aprobar
                               </button>
-                              <button @click="requestHoliday(3)" type="button" class="btn btn-outline-danger btn-rounded">
+                              <button v-if="role != 5" @click="requestHoliday(3)" type="button" class="btn btn-outline-danger btn-rounded">
                                 <img src="images/cancelar.png">
                                 Rechazar
                               </button>
@@ -406,6 +407,8 @@ export default class Welcome extends Vue {
   daysr = 0;
   noter = '';
 
+  role: any = 0;
+
   async handleOk() {
     this.loading = true;
     const result: any = await axios.post('/api/save-detail-holiday',
@@ -438,7 +441,20 @@ export default class Welcome extends Vue {
     this.data = response.data;
   }
 
+  showAlert(title: string) {
+    const confirm = Modal.info;
+    confirm({
+      title: title ,
+      content: '',
+      okText: 'Aceptar',
+    });
+  }
+
   async requestHoliday(status: any) {
+    if (this.dataRequest.supervisor_note == null || this.dataRequest.supervisor_note == "") {
+      this.showAlert("El campo Notas de supervisor(a) es requerido");
+      return;
+    }
     this.loadingRequest = true;
     const result: any = await axios.post('/api/admin-request-holiday',
     { id : this.dataRequest.id,
@@ -475,6 +491,7 @@ export default class Welcome extends Vue {
     this.userName = this.$store.state.user.name;
     this.check = this.$store.state.user.pronombre;
     this.getUsersActive();
+    this.role = this.$store.state.user.role_time_id;
   }
 }
 </script>

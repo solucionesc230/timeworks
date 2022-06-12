@@ -1,5 +1,7 @@
 <template>
   <div>
+
+    <loading :active.sync="loading" :is-full-page="true"></loading>
     <div class="row p-2">
       <div class="col-md-4">
         <div class="row d-flex align-items-center">
@@ -99,7 +101,7 @@
       <button @click="exportToPDF" :disabled="loadingExportPdf" type="button" class="ml-2 btn btn-outline-success btn-custom-red btn-sm actions-button">
         Descargar PDF <img class="ml-1" style="width: 18px" src="/assets/images/pdf.png">
       </button>
-      <button  type="button" class="ml-2 btn btn-outline-success btn-custom-purple btn-sm actions-button">
+      <button v-if="file" @click="downloadFile"  type="button" class="ml-2 btn btn-outline-success btn-custom-purple btn-sm actions-button">
         Descargar Reporte Final <img class="ml-1" style="width: 18px" src="/assets/images/final.png">
       </button>
     </div>
@@ -116,10 +118,13 @@ import vSelect from "vue-select";
 import {Chart} from 'highcharts-vue'
 import XLSX from "xlsx";
 import {Modal} from "ant-design-vue";
+import Loading from 'vue-loading-overlay';
+// Import stylesheet
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 @Component({
   components:{
-    RotateSquare2, MonthPickerInput, vSelect, Chart
+    RotateSquare2, MonthPickerInput, vSelect, Chart, Loading
   }
 })
 
@@ -136,6 +141,8 @@ export default class UsersRegisters extends Vue {
   options: any = [];
   charts: any = [];
   loadingExportPdf = false;
+  file = null;
+  loading = false;
 
   month = moment().month();
   year =  moment().year();
@@ -145,9 +152,14 @@ export default class UsersRegisters extends Vue {
     this.users = response.data
   }
 
+
+  downloadFile() {
+    console.log(this.response.file)
+  }
+
   async exportToPDF() {
     const params = {
-      "month": this.month,
+      "month": this.month + 1,
       "year": this.year,
       "userId": this.userSelected.id
     }
@@ -225,6 +237,7 @@ export default class UsersRegisters extends Vue {
     this.options = [];
     this.charts = [];
 
+
     const data = {
       'user_id': this.userSelected.id,
       'year': this.year,
@@ -232,13 +245,17 @@ export default class UsersRegisters extends Vue {
       'projects': this.projectsSelected.map((item: any) => item.project)
     };
 
+    this.loading = true;
     try {
       const response = await axios.post('/api/get/data/revision-detail', data);
       this.response = response.data;
+      this.file = this.response.file;
       this.buildHorizontalChart();
       this.buildPieCharts();
+      this.loading = false;
     } catch (e) {
       console.log(e);
+      this.loading = false;
     }
   }
 
@@ -530,7 +547,7 @@ export default class UsersRegisters extends Vue {
  }
 
  .btn-custom-purple{
-   color: #6F78D2;
+   color: #6F78D2 !important;
    border: 2px solid #6F78D2;
  }
 
@@ -538,5 +555,9 @@ export default class UsersRegisters extends Vue {
    color: #fff;
    background-color: #bcc3ff;
    border: 2px solid #6F78D2;
+ }
+
+ .ant-select-enabled{
+   min-width: 220px !important;
  }
 </style>

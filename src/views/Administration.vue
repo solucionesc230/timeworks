@@ -12,6 +12,7 @@
             : type === types.users ? '> Revisión detallada'
             : type === types.vacation ? '> Vacaciones y ausencias'
             : type === types.timesheet ? '> TimeSheets'
+            : type === types.general ? '> Revisión General'
             : '' }}</b>
           </template>
           </h1>
@@ -36,7 +37,7 @@
                 </div>
               </div>
             </div>
-            <div class="card card-shadow" @click="setType(types.vacation)" style="cursor: pointer;">
+            <div v-show="role != 3" class="card card-shadow" @click="setType(types.vacation)" style="cursor: pointer;">
               <div class="card-body" >
                 <hr class="hr">
                 <div class="card-contain">
@@ -53,6 +54,15 @@
                   <p class="p-admin">TIMESHEETS</p>
                   <img src="assets/images/TimeSheets.png" class="img-admin"/>
 
+                </div>
+              </div>
+            </div>
+            <div class="card card-shadow" @click="setType(types.general)" style="cursor: pointer;">
+              <div class="card-body" >
+                <hr class="hr">
+                <div class="card-contain">
+                  <p class="p-admin">Revision General</p>
+                  <img src="assets/images/TimeSheets.png" class="img-admin"/>
                 </div>
               </div>
             </div>
@@ -78,6 +88,7 @@
             <reports-register v-if="type === types.reports"></reports-register>
             <vacation v-if="type === types.vacation"></vacation>
             <vacation v-if="type === types.timesheet"></vacation>
+            <general-review v-if="type === types.generalreview"/>
           </div>
 
 
@@ -86,6 +97,7 @@
         </div>
         <div v-show="$route.fullPath === '/administration?detail'">
           <reports-generation v-if="type === types.reportsgeneration"></reports-generation>
+
         </div>
       <!-- </div> -->
     <!-- </div> -->
@@ -100,9 +112,12 @@ import ProjectRegisters from "@/views/ProjectRegisters.vue";
 import ReportsRegister from "@/views/ReportsRegister.vue";
 import ReportsGeneration from "@/views/ReportsGeneration.vue";
 import Vacation from "@/views/AdminVacation.vue";
+import GeneralReview from "@/views/GeneralReview.vue";
 
 @Component({
-  components: {ReportsRegister, ProjectRegisters, GeneralRegisters, UsersRegisters, ReportsGeneration, Vacation }
+  components: {
+    GeneralReview,
+    ReportsRegister, ProjectRegisters, GeneralRegisters, UsersRegisters, ReportsGeneration, Vacation }
 })
 export default class Administration extends Vue{
   private types = {
@@ -112,9 +127,11 @@ export default class Administration extends Vue{
     reports: "reports",
     reportsgeneration: "reportsgeneration",
     vacation: "vacation",
-    timesheet: "timesheet"
+    timesheet: "timesheet",
+    generalreview: 'generalreview'
    };
   private type = '';
+  role: any = 0;
 
   goToReportsGeneration(){
       this['$router'].replace("/reports-generation");
@@ -124,6 +141,10 @@ export default class Administration extends Vue{
 
     this['$router'].replace("/administration?detail");
     this.type =  type;
+  }
+
+  async mounted() {
+    this.role = this.$store.state.user.role_time_id;
   }
 }
 </script>

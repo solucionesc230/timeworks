@@ -56,6 +56,7 @@
                       <option value="2">Vacaciones (medio turno)</option>
                       <option value="3">Enfermedad</option>
                       <option value="4">Otro</option>
+                      <option value="5">Dias no pagados</option>
                     </select>
                     <input v-if="typerequest == 4" v-model="commentother" type="text" class="form-control" placeholder="Escriba un comentario" style="margin-top: 2%;">
                   </div>
@@ -206,7 +207,9 @@ export default class Welcome extends Vue {
         this.dateend = "";
         return;
       }
-      this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de vacaciones (restando " + this.daysholidays + " días de los " + this.util.days_generated + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
+      this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de "
+      + (this.typerequest == 1 ? 'Vacaciones' : this.typerequest == 2 ? 'Vacaciones (medio turno)' : this.typerequest == 3 ? 'Enfermedad' : this.typerequest == 4 ? 'Otro' + this.comment : this.typerequest == 5 ? 'Días no pagados' : '')
+      + " (restando " + this.daysholidays + " días de los " + this.util.days_generated + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
       + ((this.user['supervisors']).length == 0 ? "" : this.user['supervisors'][0].name);
     }
   }

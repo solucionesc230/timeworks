@@ -1,11 +1,8 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-md-7">
-        <h6 class="text-muted">Registros generales</h6>
-      </div>
-      <div class="col-md-5 text-right" style="border-bottom: 1px solid #F5B133">
-        <a-range-picker  @change="dateRangeSelected" />
+      <div class="col-md-12 text-left">
+        <b style="margin-right: 15px">Seleccione un rango de fecha:</b><a-range-picker  @change="dateRangeSelected" />
       </div>
     </div>
 

@@ -16,7 +16,7 @@
 
       </div>
 
-      <div class="img-content" v-if="userName == 2" @click="goToGeneralRegisters">
+      <div class="img-content" v-if="userName > 1" @click="goToGeneralRegisters">
         <img src="assets/images/Menu-Admin.png"/>
         <p class="font-size">Administración</p>
 
