@@ -120,7 +120,7 @@ import XLSX from "xlsx";
 import {Modal} from "ant-design-vue";
 import Loading from 'vue-loading-overlay';
 // Import stylesheet
-// import 'vue-loading-overlay/dist/vue-loading.css';
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 @Component({
   components:{
@@ -159,7 +159,7 @@ export default class UsersRegisters extends Vue {
 
   async exportToPDF() {
     const params = {
-      "month": this.month + 1,
+      "month": this.month,
       "year": this.year,
       "userId": this.userSelected.id
     }
