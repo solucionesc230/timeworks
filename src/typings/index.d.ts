@@ -4,3 +4,4 @@ declare module '@inotom/vue-go-top';
 declare module 'vue-backtotop';
 declare module 'vue-month-picker';
 declare module 'vue-select'
+declare module 'vue-loading-overlay'
