@@ -88,7 +88,6 @@
                   v-model="comment"
                   rows="3"></textarea>
                 </div>
-                {{daysuse}}
                 <div class="grid-inputs-two m-lr" style="gap: 4%;" v-show="util.days_generated > 0">
                   <button @click="requestHoliday" type="button" class="btn btn-outline-success btn-rounded">
                     <img src="images/Solicitar.png">
