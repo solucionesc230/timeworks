@@ -98,6 +98,8 @@
                     Cancelar
                   </button>
                 </div>
+                <br>
+                <br>
               </div>
 
             </div>
@@ -310,7 +312,7 @@ export default class Welcome extends Vue {
 }
 
 .height-card {
-  height: 100%;
+  height: 106%;
 }
 
 .bg-admin {
