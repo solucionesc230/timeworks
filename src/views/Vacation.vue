@@ -19,7 +19,7 @@
             </div>
           </div>
         </div>
-        <div class="grid-two-v">
+        <div class="grid-two-v" style="min-height: max-content;">
           <div class="card card-shadow height-card" v-show="type == 1">
             <div class="card-body" >
               <div class="loading" v-show="loading">
