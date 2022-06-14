@@ -1,7 +1,7 @@
 <template>
 
   <div class="card card-shadow height-card" >
-    <div class="card-body" >
+    <div class="card-body" style="overflow-y: scroll;">
       <div class="loading" v-show="history.length == 0">
       </div>
       <div v-show="loading.length != 0">
