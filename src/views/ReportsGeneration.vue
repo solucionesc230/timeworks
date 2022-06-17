@@ -27,7 +27,14 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in data" :key="index">
+                <tr v-show="loadinghistory">
+                  <td colspan="6">
+                    <div class="loadinghistory" >
+                    </div>
+                    <h2>Cargando...</h2>
+                  </td>
+                </tr>
+                <tr v-for="(item, index) in data" :key="index" v-show="!loadinghistory">
                   <td style="text-align: left;">{{ item.name }}</td>
                   <td style="text-align: left;">
                     <div class="badge badge-default badge-outlined" v-if="item.status === 'Pendiente'">{{item.status}}</div>
@@ -153,6 +160,7 @@ export default class ReportsGeneration extends Vue{
   file: any = null;
   loading = false;
   uploading = false;
+  loadinghistory = false;
   files: any = [];
   role: any = 0;
 
@@ -230,9 +238,11 @@ export default class ReportsGeneration extends Vue{
   }
 
   async getUsersReports(){
-    this.getPermission([3]);
+    this.loadinghistory = true;
+    this.getPermission([3, 2]);
     const response = await axios.post('/api/reports-generation-monthly', { 'month' : this.month, 'year' : this.year, 'role' : this.role });
     this.data = response.data;
+    this.loadinghistory = false;
   }
 
   async markAsFinished(index: any){
