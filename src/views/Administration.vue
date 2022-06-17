@@ -37,7 +37,7 @@
                 </div>
               </div>
             </div>
-            <div v-show="role != 3" class="card card-shadow" @click="setType(types.vacation)" style="cursor: pointer;">
+            <div v-show="permission" class="card card-shadow" @click="setType(types.vacation)" style="cursor: pointer;">
               <div class="card-body" >
                 <hr class="hr">
                 <div class="card-contain">
@@ -87,7 +87,7 @@
             <users-registers v-if="type === types.users"></users-registers>
             <reports-register v-if="type === types.reports"></reports-register>
             <vacation v-if="type === types.vacation"></vacation>
-            <vacation v-if="type === types.timesheet"></vacation>
+            <general-review v-if="type === types.timesheet"></general-review>
             <general-review v-if="type === types.generalreview"/>
           </div>
 
@@ -132,6 +132,29 @@ export default class Administration extends Vue{
    };
   private type = '';
   role: any = 0;
+  permission: any = false;
+
+  getPermission(data: any){
+    const roles = JSON.parse(this['$store'].state.user.roles_time);
+    const array = roles.map(function(x) {
+      return x.id;
+    });
+    let iguales=0;
+
+    for(let i=0; i < data.length; i++)
+    {
+      for(let j=0; j < array.length; j++)
+      {
+        if(data[i]==array[j])
+        iguales++;
+      }
+    }
+    if (iguales > 0) {
+      this.permission = true;
+    }else {
+      this.permission = false;
+    }
+  }
 
   goToReportsGeneration(){
       this['$router'].replace("/reports-generation");
@@ -145,6 +168,7 @@ export default class Administration extends Vue{
 
   async mounted() {
     this.role = this.$store.state.user.role_time_id;
+    this.getPermission([2,4,5]);
   }
 }
 </script>

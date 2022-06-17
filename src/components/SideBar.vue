@@ -15,8 +15,7 @@
         <p class="font-size">Vacaciones y ausencias</p>
 
       </div>
-
-      <div class="img-content" v-if="userName > 1" @click="goToGeneralRegisters">
+      <div class="img-content" v-if="permission > 1" @click="goToGeneralRegisters">
         <img src="assets/images/Menu-Admin.png"/>
         <p class="font-size">Administración</p>
 
@@ -78,8 +77,18 @@ import { Component, Mixins } from "vue-property-decorator";
 import MenuMixin from "@/mixin/MenuMixin";
 @Component
 export default class SideBar extends Mixins(MenuMixin) {
+  permission: any = null;
+
   goToUsePolicy(){
       this['$router'].replace("/use-policy");
+  }
+
+  checkIfHavePermissions(){
+    const roles = JSON.parse(this['$store'].state.user.roles_time);
+    const array = roles.map(function(x) {
+        return x.id;
+    });
+    this.permission = array.reduce((a, b) => a + b);
   }
 
   async logout(){
@@ -91,6 +100,7 @@ export default class SideBar extends Mixins(MenuMixin) {
       await this['$store'].dispatch("getUser").then(() => {
         this.userName = this['$store'].state.user.role_time_id;
       });
+    this.checkIfHavePermissions();
     this.showAdministrationMenu =  this.checkIfUserCanSeeAdministratorMenu();
   }
 }

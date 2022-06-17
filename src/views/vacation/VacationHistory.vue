@@ -1,10 +1,13 @@
 <template>
 
   <div class="card card-shadow height-card" >
-    <div class="card-body" >
-      <div class="loading" v-show="history.length == 0">
+    <div class="card-body" style="overflow-y: scroll;">
+      <div v-show="loading">
+        <div class="loadinghistory" >
+        </div>
+        <h2>Cargando ...</h2>
       </div>
-      <div v-show="loading.length != 0">
+      <div v-show="!loading">
         <template v-if="origin == 'user'">
           <div class="grid-inputs-one">
             <p class="text-al fw" style="color: #310981;">Mi historial</p>
@@ -35,7 +38,7 @@
             </thead>
             <tbody>
               <tr class="text-al border-n" v-for="t in history"  :key="t.id">
-                <td class="fw">{{t.type == 1 ? 'Vacaciones' : t.type == 2 ? 'Vacaciones (medio turno)' : t.type == 3 ? 'Enfermedad' : t.type == 4 ? 'Otro - ' + t.comment : ''}}</td>
+                <td class="fw">{{t.type == 1 ? 'Vacaciones' : t.type == 2 ? 'Vacaciones (medio turno)' : t.type == 3 ? 'Enfermedad' : t.type == 4 ? 'Otro - ' + t.comment : t.type == 5 ? 'Días no pagados' : ''}}</td>
                 <td class="fw">{{t.fecha}}</td>
                 <td>
                   <span :class="t.status == 1 ? 'span-revision' : t.status == 2 ? 'span-aprobado' : t.status == 3 ? 'span-rechazado' : t.status == 4 ? 'span-finalizado':''">
@@ -73,8 +76,10 @@ export default class Welcome extends Vue {
   history: any = [];
 
   async getHistory() {
+    this.loading = true;
     const history = await axios.get('/api/user-history-vacation/' + this.userId + '&' + this.year);
     this.history = history.data;
+    this.loading = false;
   }
 
   async mounted() {

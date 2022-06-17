@@ -12,17 +12,20 @@
             <div class="card-body">
               <hr class="hr">
               <p class="p-admin">MIS VACACIONES </p>
-              <h2 style="text-align:left;color: #a5acb2;">{{parseFloat(util.days_generated)}} días disponibles</h2>
+              <h2 style="text-align:left;color: #a5acb2;">{{parseFloat(util.days_generated) + parseFloat(util.days_replacement)}} días disponibles</h2>
               <p class="p-admin" style="color: #6C757D !important;">Válidos hasta el [31/03/{{year + 1}}]</p>
               <a @click="type = 1" class="btn btn-outline-btn-vacation" :class="type == 1 ? 'active' : ''"><i></i> Solicitar vacaciones o ausencia <i class="fas fa-angle-right"></i></a>
               <a @click="type = 2" class="btn btn-outline-btn-vacation" :class="type == 2 ? 'active' : ''"><i></i> Mi historial <i class="fas fa-angle-right"></i></a>
             </div>
           </div>
         </div>
-        <div class="grid-two-v">
+        <div class="grid-two-v" style="min-height: max-content;">
           <div class="card card-shadow height-card" v-show="type == 1">
             <div class="card-body" >
-              <div class="loading" v-show="loading">
+              <div v-show="loading">
+                <div class="loadinghistory" >
+                </div>
+                <h2>Cargando...</h2>
               </div>
               <div v-show="!loading">
                 <div class="title-one-card-vacation">
@@ -38,8 +41,8 @@
                 <p class="p-admin pd-text" style="color: #6C757D !important;">Supervisor(a) :</p>
                 <p style="color: #000;" class="pd-text text-al text-f fw">
                   <template v-if="(user.supervisors).length > 0">
-                    <template v-for="s in user.supervisors">
-                      {{s.name}}
+                    <template v-for="s in user.supervisors" >
+                      {{s.name}} <br :key="s.id">
                     </template>
                   </template>
                   <template v-else>
@@ -78,7 +81,7 @@
                       <!-- <input v-model="datestart" @change="countWorkDay" type="date" class="form-control" placeholder="Example input"> -->
                       <!-- <input v-model="dateend" @change="countWorkDay" type="date" class="form-control" placeholder="Example input"> -->
                     </div>
-                    <label style="font-size: smaller; margin-top: 0; margin-bottom: 0; padding: 0;color: #319397;font-weight: bold;"><span>⚠</span> Se reducirán {{daysholidays}} días. Tras la aprobación, tus días disponibles serán {{parseFloat(util.days_generated) - daysholidays}}</label>
+                    <label style="font-size: smaller; margin-top: 0; margin-bottom: 0; padding: 0;color: #319397;font-weight: bold;"><span>⚠</span> Se reducirán {{daysholidays}} días. Tras la aprobación, tus días disponibles serán {{(parseFloat(util.days_generated) + parseFloat(util.days_replacement)) - daysholidays}}</label>
                   </div>
 
                 </div>
@@ -98,6 +101,8 @@
                     Cancelar
                   </button>
                 </div>
+                <br>
+                <br>
               </div>
 
             </div>
@@ -153,6 +158,7 @@ export default class Welcome extends Vue {
   }
 
   countWorkDay(){
+    this.daysuse = [];
     if (this.typerequest != 4) {
       this.commentother = "";
     }
@@ -194,7 +200,7 @@ export default class Welcome extends Vue {
       }
       const result = delta - weeks;
       this.daysholidays = this.typerequest == 2 ? (0.5 * result) : result;
-      if (this.daysholidays > this.util.days_generated) {
+      if (this.daysholidays > (this.util.days_generated + this.util.days_replacement)) {
         this.showError("No se puede exeder los dias solicitados a los dias disponibles");
         this.dateend = "";
         this.daysholidays = 0;
@@ -209,7 +215,7 @@ export default class Welcome extends Vue {
       }
       this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de "
       + (this.typerequest == 1 ? 'Vacaciones' : this.typerequest == 2 ? 'Vacaciones (medio turno)' : this.typerequest == 3 ? 'Enfermedad' : this.typerequest == 4 ? 'Otro' + this.comment : this.typerequest == 5 ? 'Días no pagados' : '')
-      + " (restando " + this.daysholidays + " días de los " + this.util.days_generated + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
+      + " (restando " + this.daysholidays + " días de los " + (parseFloat(this.util.days_generated) + parseFloat(this.util.days_replacement)) + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
       + ((this.user['supervisors']).length == 0 ? "" : this.user['supervisors'][0].name);
     }
   }
@@ -260,7 +266,7 @@ export default class Welcome extends Vue {
     const result: any = await axios.post('/api/send-request-holiday',
     { userid : this.user.id,
       detailid : this.util.id,
-      supervisorid : this.user.supervisors[0].id,
+      supervisorid : this.user.supervisors,
       type : this.typerequest,
       datestart : this.datestart,
       dateend : this.dateend,
@@ -309,7 +315,7 @@ export default class Welcome extends Vue {
 }
 
 .height-card {
-  height: 100%;
+  height: 106%;
 }
 
 .bg-admin {

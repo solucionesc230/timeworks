@@ -37,13 +37,13 @@
                   </td>
                   <td>{{ item.version }}</td>
                   <td>
-                    <a :disabled="role == 5">
+                    <a :disabled="!permission">
                       <img @click="generateExcel(index)" v-if="!data[index].loading" :src="getImageDownload(item, 'excel')" alt="">
                       <rotate-square2 size="20px" v-if="data[index].loading"></rotate-square2>
                     </a>
                   </td>
                   <td>
-                    <a :disabled="role == 5">
+                    <a :disabled="!permission">
                       <img @click="generatePdf(index)" v-if="!data[index].loading" :src="getImageDownload(item, 'pdf')" alt="">
                       <rotate-square2 size="20px" v-if="data[index].loading"></rotate-square2>
                     </a>
@@ -56,7 +56,7 @@
                   <template v-if="data[index].activityId">
                     <template v-if="item.path">
                       <div class="dropdown">
-                        <button :disabled="role == 5" class="dropdown-toggle btn-outline" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button :disabled="!permission" class="dropdown-toggle btn-outline" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           <img src="/images/Final.png" alt="" style="width: 28px; cursor: pointer">
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -69,7 +69,7 @@
                     </template>
                     <template v-else>
                       <div class="dropdown">
-                        <button :disabled="role == 5" class="dropdown-toggle btn-outline" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button :disabled="!permission" class="dropdown-toggle btn-outline" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           <img src="/images/Final- inactivo.png" alt="" style="width: 28px; cursor: pointer">
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -156,6 +156,29 @@ export default class ReportsGeneration extends Vue{
   files: any = [];
   role: any = 0;
 
+  permission: any = false;
+
+  getPermission(data: any){
+    const roles = JSON.parse(this['$store'].state.user.roles_time);
+    const array = roles.map(function(x) {
+      return x.id;
+    });
+    let iguales=0;
+
+    for(let i=0; i < data.length; i++)
+    {
+      for(let j=0; j < array.length; j++)
+      {
+        if(data[i]==array[j])
+        iguales++;
+      }
+    }
+    if (iguales > 0) {
+      this.permission = true;
+    }else {
+      this.permission = false;
+    }
+  }
 
   created(){
     this.getUsersReports();
@@ -207,6 +230,7 @@ export default class ReportsGeneration extends Vue{
   }
 
   async getUsersReports(){
+    this.getPermission([3]);
     const response = await axios.post('/api/reports-generation-monthly', { 'month' : this.month, 'year' : this.year, 'role' : this.role });
     this.data = response.data;
   }
