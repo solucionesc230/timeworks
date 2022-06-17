@@ -159,7 +159,7 @@ export default class UsersRegisters extends Vue {
 
   async exportToPDF() {
     const params = {
-      "month": this.month + 1,
+      "month": this.month,
       "year": this.year,
       "userId": this.userSelected.id
     }
