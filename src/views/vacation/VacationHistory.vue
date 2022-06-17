@@ -2,14 +2,10 @@
 
   <div class="card card-shadow height-card" >
     <div class="card-body" style="overflow-y: scroll;">
-<<<<<<< HEAD
       <div v-show="loading">
         <div class="loadinghistory" >
         </div>
         <h2>Cargando ...</h2>
-=======
-      <div class="loading" v-show="history.length == 0">
->>>>>>> c9d5e93d62a7fde824aa729de83298d2b4a7e473
       </div>
       <div v-show="!loading">
         <template v-if="origin == 'user'">
