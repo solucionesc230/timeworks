@@ -123,4 +123,50 @@ export default class Welcome extends Vue {
 .table-info-new {
   background: #f4f7f9;
 }
+
+/* Span buttons */
+.span-aprobado {
+  border: 1px solid #accf60;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #accf60;
+  background: #f4f8e9;
+}
+
+.span-rechazado {
+  border: 1px solid #db7e97;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #d63776;
+  background: #f9e9ec;
+}
+
+.span-revision {
+  border: 1px solid #c0c1c2;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #989da5;
+  background: #eef0f2;
+}
+
+.span-finalizado {
+  border: 1px solid #b0a1fa;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #836bf9;
+  background: #f2f0fd;
+}
+
 </style>

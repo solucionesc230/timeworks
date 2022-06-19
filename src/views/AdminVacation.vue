@@ -52,7 +52,7 @@
             <th scope="col" class="fh" style="color: #3d70b3; ">Vacaciones fijas</th>
             <th scope="col" class="fh" style="color: #3d70b3; ">Vacaciones flexibles</th>
             <th scope="col" class="fh" style="color: #3d70b3; ">Días disponibles</th>
-            <th scope="col" class="fh" style="color: #3d70b3; ">Estatus</th>
+            <th width="18%" scope="col" class="fh" style="color: #3d70b3; ">Estatus</th>
           </tr>
         </thead>
         <tbody>
@@ -80,15 +80,48 @@
                 </td>
                 <td>{{t.organizacion}}</td>
                 <td>{{t.date_in}}</td>
-                <template v-for="(detail, index) in t.vacationabsencesdetail">
-                  <template v-if="detail.active == 1">
-                    <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + parseFloat(detail.permanent_holidays) + (parseFloat(detail.days_replacement))}}</td>
-                    <td :key="'two' + index">{{parseFloat(detail.permanent_holidays)}}</td>
-                    <td :key="'three' + index">{{parseFloat(detail.flexible_holidays)}}</td>
-                    <td :key="'four' + index">{{parseFloat(detail.days_generated) + parseFloat(detail.days_replacement)}}</td>
+                <template v-if="(t.vacationabsencesdetail).length != 0">
+                  <template v-for="(detail, index) in t.vacationabsencesdetail">
+                    <template v-if="detail.active == 1">
+                      <td :key="'one' + index">{{parseFloat(detail.flexible_holidays) + parseFloat(detail.permanent_holidays) + (parseFloat(detail.days_replacement))}}</td>
+                      <td :key="'two' + index">{{parseFloat(detail.permanent_holidays)}}</td>
+                      <td :key="'three' + index">{{parseFloat(detail.flexible_holidays)}}</td>
+                      <td :key="'four' + index">{{parseFloat(detail.days_generated) + parseFloat(detail.days_replacement)}}</td>
+                    </template>
                   </template>
                 </template>
-                <td></td>
+                <template v-else>
+                  <td ></td>
+                  <td ></td>
+                  <td ></td>
+                  <td ></td>
+                </template>
+                <td>
+                  <template v-if="(t.vacationabsencesrequest).length != 0">
+                    <template v-if="t.vacationabsencesrequest[(t.vacationabsencesrequest).length - 1]['status'] == 1">
+                      <span class="span-revision">
+                        Solicitud recibida
+                      </span>
+                    </template>
+                    <template v-if="t.vacationabsencesrequest[(t.vacationabsencesrequest).length - 1]['status'] == 2">
+                      <template v-if="t.vacationabsencesrequest[(t.vacationabsencesrequest).length - 1]['date_start'] >= this.dateNow && t.vacationabsencesrequest[(t.vacationabsencesrequest).length - 1]['date_end'] <= this.dateNow">
+                        <span class="span-finalizado">
+                        Ausencia
+                        </span>
+                      </template>
+                      <template v-else>
+                        <span class="span-aprobado">
+                          Presente
+                        </span>
+                      </template>
+                    </template>
+                  </template>
+                  <template v-else>
+                    <span class="span-aprobado">
+                      Presente
+                    </span>
+                  </template>
+                </td>
               </template>
             </template>
           </tr>
@@ -124,8 +157,10 @@
                   <div class="tab-pane fade" :class="navOption == 2 ? 'show active' : ''" role="tabpanel" aria-labelledby="pills-profile-tab">
                     <div class="card card-shadow">
                       <div class="card-body">
-                        <div class="loading" v-show="loadingRequest">
-
+                        <div v-show="loadingRequest">
+                          <div class="loading">
+                          </div>
+                          <h2>Cargando...</h2>
                         </div>
                         <div v-show="!loadingRequest">
                           <div class="grid-buttons" >
@@ -418,6 +453,8 @@ export default class Welcome extends Vue {
   role: any = 0;
   permission: any = false;
 
+  dateNow: any = '';
+
   fechaSince(data: any){
     const year = new Date();
     // const date = new Date();
@@ -455,7 +492,7 @@ export default class Welcome extends Vue {
   async handleOk() {
 
     if (this.noter == '') {
-      this.showAlert('Se necesita regitrar un comentario');
+      this.showAlert('Se necesita registrar un comentario');
       return;
     }
     if (this.daysr == 0) {
@@ -480,8 +517,11 @@ export default class Welcome extends Vue {
 
   async getRequest(id: any) {
     this.getPermission([2,4,5]);
+    this.loadingRequest = true;
     const request = await axios.get('/api/user-request-vacation/' + id + '&' + this.year);
     this.request = request.data;
+    this.loadingRequest = false;
+
   }
 
   async getHistory(id: any) {
@@ -490,6 +530,7 @@ export default class Welcome extends Vue {
   }
 
   async getUsersActive(){
+    this.data = [];
     const response = await axios.get('/api/get-list-users-active');
     this.data = response.data;
   }
@@ -545,6 +586,7 @@ export default class Welcome extends Vue {
     this.check = this.$store.state.user.pronombre;
     this.getUsersActive();
     this.role = this.$store.state.user.role_time_id;
+    this.dateNow = new Date().toISOString().slice(0, 10);
     // this.getPermission();
   }
 }
@@ -799,4 +841,75 @@ span.square{
   cursor: pointer;
 }
 
+/*  */
+.loadinghistory {
+display: inline-block;
+width: 80px;
+height: 80px;
+border: 5px solid rgb(26 108 97 / 56%);
+border-radius: 50%;
+border-top-color: #fff;
+animation: spinh 1s ease-in-out infinite;
+-webkit-animation: spinh 1s ease-in-out infinite;
+position: inherit;
+top: 50%;
+left: 56%;
+}
+
+@keyframes spinh {
+to {
+  -webkit-transform: rotate(360deg);
+}
+}
+
+@-webkit-keyframes spinh {
+to {
+  -webkit-transform: rotate(360deg);
+}
+}
+
+/* Span buttons */
+.span-aprobado {
+  border: 1px solid #accf60;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #accf60;
+  background: #f4f8e9;
+}
+
+.span-rechazado {
+  border: 1px solid #db7e97;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #d63776;
+  background: #f9e9ec;
+}
+
+.span-revision {
+  border: 1px solid #c0c1c2;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #989da5;
+  background: #eef0f2;
+}
+
+.span-finalizado {
+  border: 1px solid #b0a1fa;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 14%;
+  padding-right: 14%;
+  border-radius: 20px;
+  color: #836bf9;
+  background: #f2f0fd;
+}
 </style>

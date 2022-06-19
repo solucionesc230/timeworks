@@ -272,4 +272,30 @@ export default class Administration extends Vue{
    }
  }
 
+ /*  */
+ .loadinghistory {
+ display: inline-block;
+ width: 80px;
+ height: 80px;
+ border: 5px solid rgb(26 108 97 / 56%);
+ border-radius: 50%;
+ border-top-color: #fff;
+ animation: spinh 1s ease-in-out infinite;
+ -webkit-animation: spinh 1s ease-in-out infinite;
+ position: inherit;
+ top: 50%;
+ left: 56%;
+ }
+
+ @keyframes spinh {
+ to {
+   -webkit-transform: rotate(360deg);
+ }
+ }
+
+ @-webkit-keyframes spinh {
+ to {
+   -webkit-transform: rotate(360deg);
+ }
+ }
 </style>
