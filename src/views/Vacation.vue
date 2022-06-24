@@ -12,9 +12,9 @@
             <div class="card-body">
               <hr class="hr">
               <p class="p-admin">MIS VACACIONES </p>
-              <h2 style="text-align:left;color: #a5acb2;">{{parseFloat(util.days_generated) + parseFloat(util.days_replacement)}} días disponibles</h2>
+              <h2 style="text-align:left;color: #a5acb2;">{{parseFloat(util.days_generated) }} días disponibles</h2>
               <p class="p-admin" style="color: #6C757D !important;">Válidos hasta el [31/03/{{year + 1}}]</p>
-              <a @click="type = 1" class="btn btn-outline-btn-vacation" :class="type == 1 ? 'active' : ''"><i></i> Solicitar vacaciones o ausencia <i class="fas fa-angle-right"></i></a>
+              <a @click="type = 1" class="btn btn-outline-btn-vacation" style="white-space:break-spaces;" :class="type == 1 ? 'active' : ''"><i></i> Solicitar vacaciones o ausencia <i class="fas fa-angle-right"></i></a>
               <a @click="type = 2" class="btn btn-outline-btn-vacation" :class="type == 2 ? 'active' : ''"><i></i> Mi historial <i class="fas fa-angle-right"></i></a>
             </div>
           </div>
@@ -81,7 +81,7 @@
                       <!-- <input v-model="datestart" @change="countWorkDay" type="date" class="form-control" placeholder="Example input"> -->
                       <!-- <input v-model="dateend" @change="countWorkDay" type="date" class="form-control" placeholder="Example input"> -->
                     </div>
-                    <label style="font-size: smaller; margin-top: 0; margin-bottom: 0; padding: 0;color: #319397;font-weight: bold;"><span>⚠</span> Se reducirán {{daysholidays}} días. Tras la aprobación, tus días disponibles serán {{(parseFloat(util.days_generated) + parseFloat(util.days_replacement)) - daysholidays}}</label>
+                    <label style="font-size: smaller; margin-top: 0; margin-bottom: 0; padding: 0;color: #319397;font-weight: bold;"><span>⚠</span> Se reducirán {{daysholidays}} días. Tras la aprobación, tus días disponibles serán {{(parseFloat(util.days_generated) ) - daysholidays}}</label>
                   </div>
 
                 </div>
@@ -101,8 +101,6 @@
                     Cancelar
                   </button>
                 </div>
-                <br>
-                <br>
               </div>
 
             </div>
@@ -200,7 +198,7 @@ export default class Welcome extends Vue {
       }
       const result = delta - weeks;
       this.daysholidays = this.typerequest == 2 ? (0.5 * result) : result;
-      if (this.daysholidays > (this.util.days_generated + this.util.days_replacement)) {
+      if (this.daysholidays > (this.util.days_generated)) {
         this.showError("No se puede exeder los dias solicitados a los dias disponibles");
         this.dateend = "";
         this.daysholidays = 0;
@@ -215,7 +213,7 @@ export default class Welcome extends Vue {
       }
       this.comment = this.user.name + ", quien suscribe este correo, solicita el uso de "+ this.daysholidays +" días de "
       + (this.typerequest == 1 ? 'Vacaciones' : this.typerequest == 2 ? 'Vacaciones (medio turno)' : this.typerequest == 3 ? 'Enfermedad' : this.typerequest == 4 ? 'Otro' + this.comment : this.typerequest == 5 ? 'Días no pagados' : '')
-      + " (restando " + this.daysholidays + " días de los " + (parseFloat(this.util.days_generated) + parseFloat(this.util.days_replacement)) + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
+      + " (restando " + this.daysholidays + " días de los " + (parseFloat(this.util.days_generated)) + " días que tengo disponibles correspondientes a los días generados en " + this.year + ")"+". Esta solicitud ya ha sido platicada y acordada con mi supervisor[a], "
       + ((this.user['supervisors']).length == 0 ? "" : this.user['supervisors'][0].name);
     }
   }
@@ -314,35 +312,35 @@ export default class Welcome extends Vue {
   margin-top: -2%;
 }
 
-.height-card {
-  height: 106%;
-}
+/* .height-card {
+  height: 115%;
+} */
 
 .bg-admin {
   background-image: url("/assets/images/Image.png");
   background-repeat: no-repeat;
   background-position: 24em top;
-  height: 88vh;
+  /* height: 96vh; */
 }
 
 @media (min-width: 1025px) and (max-width: 1200px) {
   .bg-admin {
     background-position: 18em top;
-    height: 74vh;
+    /* height: 74vh; */
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .bg-admin {
     background-position: 6em top;
-    height: 74vh;
+    /* height: 74vh; */
   }
 }
 
 @media (max-width: 768px) {
   .bg-admin {
     background-position: -6em top;
-    height: 74vh;
+    /* height: 74vh; */
   }
 
 }
